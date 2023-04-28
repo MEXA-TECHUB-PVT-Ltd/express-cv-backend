@@ -112,7 +112,7 @@ exports.login = async (req,res)=>{
             )
         }
 
-        const token = jwt.sign({ id: foundResult.rows[0].id }, process.env.TOKEN, { expiresIn: '30d' });
+        const token = jwt.sign({ id: foundResult.rows[0].admin_id }, process.env.TOKEN, { expiresIn: '30d' });
         res.json({
             message: "Logged in Successfully",
             status: true,

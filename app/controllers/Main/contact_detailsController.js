@@ -1,33 +1,36 @@
 const {pool} = require("../../config/db.config");
 
 
-exports.addBlog = async (req, res) => {
+exports.addContact_details = async (req, res) => {
     const client = await pool.connect();
     try {
-        const title = req.body.title;
-        const description = req.body.description;
+        const surname = req.body.surname;
+        const first_name = req.body.first_name;
+        const phone = req.body.phone ;
+        const email = req.body.email ;
+        const address = req.body.address;
+        const driving_license_number= req.body.driving_license_number;
 
-        if (!title) {
-            return (
-                res.json({
-                    message: "Please provide title atleast for creating blog",
-                    status: false
-                })
-            )
-        }
+
+
 
         
-        const query = 'INSERT INTO blogs (title , description) VALUES ($1 , $2 ) RETURNING*'
+        const query = 'INSERT INTO contact_details (surname , first_name , phone , email , address , driving_license_number) VALUES ($1 , $2 , $3 , $4 , $5 , $6) RETURNING*'
         const result = await pool.query(query , 
             [
-                title ? title : null ,
-                description ? description : null,
+                surname ? surname : null,
+                first_name ? first_name : null ,
+                phone ? phone : null ,
+                email ?email : null,
+                address ? address : null,
+                driving_license_number ? driving_license_number : null
             ]);
+
 
             
         if (result.rows[0]) {
             res.status(201).json({
-                message: "blog saved in database",
+                message: "contact_detail saved in database",
                 status: true,
                 result: result.rows[0]
             })
@@ -53,44 +56,71 @@ exports.addBlog = async (req, res) => {
 
 }
 
-exports.updateBlog = async (req, res) => {
+exports.updatecontact_detail = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.body.blog_id;
-        const title = req.body.title;
-        const description = req.body.description;
+        const contact_detail_id = req.body.contact_detail_id;
+         const surname = req.body.surname;
+        const first_name = req.body.first_name;
+        const phone = req.body.phone ;
+        const email = req.body.email ;
+        const address = req.body.address;
+        const driving_license_number= req.body.driving_license_number;
 
 
-        if (!blog_id) {
+
+        if (!contact_detail_id) {
             return (
                 res.json({
-                    message: "Please provide blog_id ",
+                    message: "Please provide contact_detail_id ",
                     status: false
                 })
             )
         }
 
-       
-        let query = 'UPDATE blogs SET ';
+
+    
+        let query = 'UPDATE contact_details SET ';
         let index = 2;
-        let values =[blog_id];
+        let values =[contact_detail_id];
 
-
-
-        if(title){
-            query+= `title = $${index} , `;
-            values.push(title)
-            index ++
-        }
         
-        if(description){
-            query+= `description = $${index} , `;
-            values.push(description)
+        if(surname){
+            query+= `surname = $${index} , `;
+            values.push(surname)
+            index ++
+        }
+        if(first_name){
+            query+= `first_name = $${index} , `;
+            values.push(first_name)
+            index ++
+        }
+        if(phone){
+            query+= `phone = $${index} , `;
+            values.push(phone)
+            index ++
+        }
+
+        if(email){
+            query+= `email = $${index} , `;
+            values.push(email)
+            index ++
+        }
+
+        if(address){
+            query+= `address = $${index} , `;
+            values.push(address)
+            index ++
+        }
+        if(driving_license_number){
+            query+= `driving_license_number = $${index} , `;
+            values.push(driving_license_number)
             index ++
         }
 
 
-        query += 'WHERE blog_id = $1 RETURNING*'
+
+        query += 'WHERE contact_detail_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
 
@@ -123,20 +153,20 @@ exports.updateBlog = async (req, res) => {
       }
 }
 
-exports.deleteBlog = async (req, res) => {
+exports.deletecontact_detail = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
-        if (!blog_id) {
+        const contact_detail_id = req.query.contact_detail_id;
+        if (!contact_detail_id) {
             return (
                 res.json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide contact_detail_id",
                     status: false
                 })
             )
         }
-        const query = 'DELETE FROM blogs WHERE blog_id = $1 RETURNING *';
-        const result = await pool.query(query , [blog_id]);
+        const query = 'DELETE FROM contact_details WHERE contact_detail_id = $1 RETURNING *';
+        const result = await pool.query(query , [contact_detail_id]);
 
         if(result.rowCount>0){
             res.status(200).json({
@@ -165,32 +195,31 @@ exports.deleteBlog = async (req, res) => {
       }
 }
 
-exports.getAllBlogs = async (req, res) => {
+exports.getAllcontact_details = async (req, res) => {
     const client = await pool.connect();
     try {
 
         let limit = req.query.limit;
         let page = req.query.page
 
-        
+        let result;
 
         if (!page || !limit) {
-            return (
-                res.json({
-                    message: "page , limit, must be provided , it seems one or both of them are missing",
-                    status: false,
-                })
-            )
+            const query = 'SELECT * FROM contact_details'
+            result = await pool.query(query);
+           
         }
-        limit = parseInt(limit);
-        let offset= (parseInt(page)-1)* limit
 
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
 
-        const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        const result = await pool.query(query , [limit , offset]);
+        const query = 'SELECT * FROM contact_details LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset]);
+
+      
+        }
        
-
-
         if (result.rows) {
             res.json({
                 message: "Fetched",
@@ -218,21 +247,21 @@ exports.getAllBlogs = async (req, res) => {
 
 }
 
-exports.getBlogById = async (req, res) => {
+exports.getcontact_detailById= async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
+        const contact_detail_id = req.query.contact_detail_id;
 
-        if (!blog_id) {
+        if (!contact_detail_id) {
             return (
                 res.status(400).json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide contact_detail_id",
                     status: false
                 })
             )
         }
-        const query = 'SELECT * FROM blogs WHERE blog_id = $1'
-        const result = await pool.query(query , [blog_id]);
+        const query = 'SELECT * FROM contact_details WHERE contact_detail_id = $1'
+        const result = await pool.query(query , [contact_detail_id]);
 
         if (result.rowCount>0) {
             res.json({

@@ -354,6 +354,44 @@ exports.deleteUser= async (req, res) => {
         client.release();
       }
 }
+exports.updateBlockStatus = async(req,res)=>{
+    try{
+        const user_id = req.query.user_id ;
+        const block_status = req.query.block_status;
+
+
+        if(!user_id && !block_status){
+            return(
+                res.json({
+                    message: "User Id and block status must be provided",
+                    status :false
+                })
+            )
+        }
+
+
+        const query = 'UPDATE users SET block = $1 WHERE user_id = $2 RETURNING*';
+
+        const result = await pool.query(query , [block_status , user_id]);
+
+        if(result.rows[0]){
+            res.json({message: "Update successfully" , status :true , result : result.rows[0]})
+        }
+        else{
+            res.json({message: "Could not Update" , status : false })
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.json({
+            message: "Error Occurred",
+            status: false,
+            error: err.message
+        })
+    }
+}
+
+
 
 const registerSchema = Joi.object({
     email: Joi.string().min(6).required().email(),

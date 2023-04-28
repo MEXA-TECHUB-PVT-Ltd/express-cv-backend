@@ -1,33 +1,36 @@
 const {pool} = require("../../config/db.config");
 
 
-exports.addBlog = async (req, res) => {
+exports.addreference = async (req, res) => {
     const client = await pool.connect();
     try {
-        const title = req.body.title;
-        const description = req.body.description;
+        const user_id = req.body.user_id;
+        const name = req.body.name;
+        const email_id = req.body.email_id;
+        const contact_no = req.body.contact_no;
 
-        if (!title) {
+        if ( !user_id) {
             return (
                 res.json({
-                    message: "Please provide title atleast for creating blog",
+                    message: "Please provide user_id for creating reference",
                     status: false
                 })
             )
         }
 
-        
-        const query = 'INSERT INTO blogs (title , description) VALUES ($1 , $2 ) RETURNING*'
+        const query = 'INSERT INTO references_table (name , email_id , contact_no , user_id) VALUES ($1 , $2 , $3 , $4) RETURNING*'
         const result = await pool.query(query , 
             [
-                title ? title : null ,
-                description ? description : null,
+                name ? name : null ,
+                email_id ?email_id : null,
+                contact_no ? contact_no : null,
+                user_id ? user_id : null,
             ]);
 
             
         if (result.rows[0]) {
             res.status(201).json({
-                message: "blog saved in database",
+                message: "reference saved in database",
                 status: true,
                 result: result.rows[0]
             })
@@ -53,44 +56,53 @@ exports.addBlog = async (req, res) => {
 
 }
 
-exports.updateBlog = async (req, res) => {
+exports.updatereference = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.body.blog_id;
-        const title = req.body.title;
-        const description = req.body.description;
+        const reference_id = req.body.reference_id;
+        const name = req.body.name;
+        const email_id = req.body.email_id;
+        const contact_no = req.body.contact_no;
 
 
-        if (!blog_id) {
+        if (!reference_id) {
             return (
                 res.json({
-                    message: "Please provide blog_id ",
+                    message: "Please provide refrence_id ",
                     status: false
                 })
             )
         }
 
        
-        let query = 'UPDATE blogs SET ';
+        let query = 'UPDATE references_table SET ';
         let index = 2;
-        let values =[blog_id];
+        let values =[reference_id];
 
 
 
-        if(title){
-            query+= `title = $${index} , `;
-            values.push(title)
+        if(name){
+            query+= `name = $${index} , `;
+            values.push(name)
+            index ++
+        }
+
+        if(email_id){
+            query+= `email_id = $${index} , `;
+            values.push(email_id)
             index ++
         }
         
-        if(description){
-            query+= `description = $${index} , `;
-            values.push(description)
+
+        if(contact_no){
+            query+= `contact_no = $${index} , `;
+            values.push(contact_no)
             index ++
         }
+        
+        
 
-
-        query += 'WHERE blog_id = $1 RETURNING*'
+        query += 'WHERE refrence_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
 
@@ -123,20 +135,20 @@ exports.updateBlog = async (req, res) => {
       }
 }
 
-exports.deleteBlog = async (req, res) => {
+exports.deletereference = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
-        if (!blog_id) {
+        const reference_id = req.query.reference_id;
+        if (!reference_id) {
             return (
                 res.json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide reference_id",
                     status: false
                 })
             )
         }
-        const query = 'DELETE FROM blogs WHERE blog_id = $1 RETURNING *';
-        const result = await pool.query(query , [blog_id]);
+        const query = 'DELETE FROM references_table WHERE refrence_id = $1 RETURNING *';
+        const result = await pool.query(query , [reference_id]);
 
         if(result.rowCount>0){
             res.status(200).json({
@@ -165,7 +177,7 @@ exports.deleteBlog = async (req, res) => {
       }
 }
 
-exports.getAllBlogs = async (req, res) => {
+exports.getAllreferences = async (req, res) => {
     const client = await pool.connect();
     try {
 
@@ -173,23 +185,21 @@ exports.getAllBlogs = async (req, res) => {
         let page = req.query.page
 
         
-
         if (!page || !limit) {
-            return (
-                res.json({
-                    message: "page , limit, must be provided , it seems one or both of them are missing",
-                    status: false,
-                })
-            )
+            const query = 'SELECT * FROM references_table'
+            result = await pool.query(query);
+           
         }
-        limit = parseInt(limit);
-        let offset= (parseInt(page)-1)* limit
 
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
 
-        const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        const result = await pool.query(query , [limit , offset]);
-       
+        const query = 'SELECT * FROM references_table LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset]);
 
+      
+        }
 
         if (result.rows) {
             res.json({
@@ -218,27 +228,69 @@ exports.getAllBlogs = async (req, res) => {
 
 }
 
-exports.getBlogById = async (req, res) => {
+exports.getreferenceById = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
+        const reference_id = req.query.reference_id;
 
-        if (!blog_id) {
+        if (!reference_id) {
             return (
                 res.status(400).json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide refrence_id",
                     status: false
                 })
             )
         }
-        const query = 'SELECT * FROM blogs WHERE blog_id = $1'
-        const result = await pool.query(query , [blog_id]);
+        const query = 'SELECT * FROM references_table WHERE refrence_id = $1'
+        const result = await pool.query(query , [reference_id]);
 
         if (result.rowCount>0) {
             res.json({
                 message: "Fetched",
                 status: true,
                 result: result.rows[0]
+            })
+        }
+        else {
+            res.json({
+                message: "could not fetch",
+                status: false
+            })
+        }
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+    finally {
+        client.release();
+      }
+
+}
+
+exports.getreferencesByuser_id = async(req,res)=>{
+    const client = await pool.connect();
+    try {
+        const user_id = req.query.user_id;
+        if (!user_id) {
+            return (
+                res.status(400).json({
+                    message: "Please Provide user_id",
+                    status: false
+                })
+            )
+        }
+        const query = 'SELECT * FROM references_table WHERE user_id = $1'
+        const result = await pool.query(query , [user_id]);
+
+        if (result.rowCount>0) {
+            res.json({
+                message: "Fetched",
+                status: true,
+                result: result.rows
             })
         }
         else {

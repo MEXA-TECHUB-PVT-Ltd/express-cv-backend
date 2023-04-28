@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require("../../controllers/Users/adminController")
 
+
 router.post("/register_admin" , controller.registerAdmin);
 router.post("/login" , controller.login);
 router.get("/view_profile" , controller.viewAdminProfile);
