@@ -1,33 +1,31 @@
 const {pool} = require("../../config/db.config");
 
 
-exports.addBlog = async (req, res) => {
+exports.addObjective = async (req, res) => {
     const client = await pool.connect();
     try {
-        const title = req.body.title;
         const description = req.body.description;
 
-        if (!title) {
+        if (!description) {
             return (
                 res.json({
-                    message: "Please provide title atleast for creating blog",
+                    message: "Please provide description for creating Objective",
                     status: false
                 })
             )
         }
 
         
-        const query = 'INSERT INTO blogs (title , description) VALUES ($1 , $2 ) RETURNING*'
+        const query = 'INSERT INTO objectives (description) VALUES ($1) RETURNING*'
         const result = await pool.query(query , 
             [
-                title ? title : null ,
                 description ? description : null,
             ]);
 
             
         if (result.rows[0]) {
             res.status(201).json({
-                message: "blog saved in database",
+                message: "objective saved in database",
                 status: true,
                 result: result.rows[0]
             })
@@ -53,35 +51,27 @@ exports.addBlog = async (req, res) => {
 
 }
 
-exports.updateBlog = async (req, res) => {
+exports.updateObjective = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.body.blog_id;
-        const title = req.body.title;
+        const objective_id = req.body.objective_id;
         const description = req.body.description;
 
 
-        if (!blog_id) {
+        if (!objective_id) {
             return (
                 res.json({
-                    message: "Please provide blog_id ",
+                    message: "Please provide objective_id ",
                     status: false
                 })
             )
         }
 
        
-        let query = 'UPDATE blogs SET ';
+        let query = 'UPDATE objectives SET ';
         let index = 2;
-        let values =[blog_id];
+        let values =[objective_id];
 
-
-
-        if(title){
-            query+= `title = $${index} , `;
-            values.push(title)
-            index ++
-        }
         
         if(description){
             query+= `description = $${index} , `;
@@ -90,7 +80,7 @@ exports.updateBlog = async (req, res) => {
         }
 
 
-        query += 'WHERE blog_id = $1 RETURNING*'
+        query += 'WHERE objective_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
 
@@ -123,20 +113,20 @@ exports.updateBlog = async (req, res) => {
       }
 }
 
-exports.deleteBlog = async (req, res) => {
+exports.deleteObjective = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
-        if (!blog_id) {
+        const objective_id = req.query.objective_id;
+        if (!objective_id) {
             return (
                 res.json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide objective_id",
                     status: false
                 })
             )
         }
-        const query = 'DELETE FROM blogs WHERE blog_id = $1 RETURNING *';
-        const result = await pool.query(query , [blog_id]);
+        const query = 'DELETE FROM objectives WHERE objective_id = $1 RETURNING *';
+        const result = await pool.query(query , [objective_id]);
 
         if(result.rowCount>0){
             res.status(200).json({
@@ -165,29 +155,33 @@ exports.deleteBlog = async (req, res) => {
       }
 }
 
-exports.getAllBlogs = async (req, res) => {
+exports.getAllObjectives = async (req, res) => {
     const client = await pool.connect();
     try {
 
         let limit = req.query.limit;
         let page = req.query.page
 
-        
+        let result;
 
         if (!page || !limit) {
-            return (
-                res.json({
-                    message: "page , limit, must be provided , it seems one or both of them are missing",
-                    status: false,
-                })
-            )
+            const query = 'SELECT * FROM objectives'
+            result = await pool.query(query);
+           
         }
-        limit = parseInt(limit);
-        let offset= (parseInt(page)-1)* limit
+
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
+
+        const query = 'SELECT * FROM objectives LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset]);
+
+      
+        }
+       
 
 
-        const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        const result = await pool.query(query , [limit , offset]);
        
 
 
@@ -218,21 +212,21 @@ exports.getAllBlogs = async (req, res) => {
 
 }
 
-exports.getBlogById = async (req, res) => {
+exports.getObjectiveById= async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
+        const objective_id = req.query.objective_id;
 
-        if (!blog_id) {
+        if (!objective_id) {
             return (
                 res.status(400).json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide objective_id",
                     status: false
                 })
             )
         }
-        const query = 'SELECT * FROM blogs WHERE blog_id = $1'
-        const result = await pool.query(query , [blog_id]);
+        const query = 'SELECT * FROM objectives WHERE objective_id = $1'
+        const result = await pool.query(query , [objective_id]);
 
         if (result.rowCount>0) {
             res.json({

@@ -1,33 +1,36 @@
 const {pool} = require("../../config/db.config");
 
 
-exports.addBlog = async (req, res) => {
+exports.addeducations = async (req, res) => {
     const client = await pool.connect();
     try {
-        const title = req.body.title;
-        const description = req.body.description;
+        const university_name = req.body.university_name;
+        const degree = req.body.degree;
+        const location = req.body.location ;
+        const graduation_year = req.body.graduation_year ;
+        const end_date = req.body.end_date;
+        const description= req.body.description;
 
-        if (!title) {
-            return (
-                res.json({
-                    message: "Please provide title atleast for creating blog",
-                    status: false
-                })
-            )
-        }
+
+
 
         
-        const query = 'INSERT INTO blogs (title , description) VALUES ($1 , $2 ) RETURNING*'
+        const query = 'INSERT INTO educations (university_name , degree , location , graduation_year , end_date , description) VALUES ($1 , $2 , $3 , $4 , $5 , $6) RETURNING*'
         const result = await pool.query(query , 
             [
-                title ? title : null ,
-                description ? description : null,
+                university_name ? university_name : null,
+                degree ? degree : null ,
+                location ? location : null ,
+                graduation_year ?graduation_year : null,
+                end_date ? end_date : null,
+                description ? description : null
             ]);
+
 
             
         if (result.rows[0]) {
             res.status(201).json({
-                message: "blog saved in database",
+                message: "education saved in database",
                 status: true,
                 result: result.rows[0]
             })
@@ -53,36 +56,62 @@ exports.addBlog = async (req, res) => {
 
 }
 
-exports.updateBlog = async (req, res) => {
+exports.updateeducation = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.body.blog_id;
-        const title = req.body.title;
-        const description = req.body.description;
+        const education_id = req.body.education_id;
+        const university_name = req.body.university_name;
+        const degree = req.body.degree;
+        const location = req.body.location ;
+        const graduation_year = req.body.graduation_year ;
+        const end_date = req.body.end_date;
+        const description= req.body.description;
 
 
-        if (!blog_id) {
+
+        if (!education_id) {
             return (
                 res.json({
-                    message: "Please provide blog_id ",
+                    message: "Please provide education_id ",
                     status: false
                 })
             )
         }
 
-       
-        let query = 'UPDATE blogs SET ';
+
+    
+        let query = 'UPDATE educations SET ';
         let index = 2;
-        let values =[blog_id];
+        let values =[education_id];
 
-
-
-        if(title){
-            query+= `title = $${index} , `;
-            values.push(title)
+        
+        if(university_name){
+            query+= `university_name = $${index} , `;
+            values.push(university_name)
             index ++
         }
-        
+        if(degree){
+            query+= `degree = $${index} , `;
+            values.push(degree)
+            index ++
+        }
+        if(location){
+            query+= `location = $${index} , `;
+            values.push(location)
+            index ++
+        }
+
+        if(graduation_year){
+            query+= `graduation_year = $${index} , `;
+            values.push(graduation_year)
+            index ++
+        }
+
+        if(end_date){
+            query+= `end_date = $${index} , `;
+            values.push(end_date)
+            index ++
+        }
         if(description){
             query+= `description = $${index} , `;
             values.push(description)
@@ -90,7 +119,8 @@ exports.updateBlog = async (req, res) => {
         }
 
 
-        query += 'WHERE blog_id = $1 RETURNING*'
+
+        query += 'WHERE education_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
 
@@ -123,20 +153,20 @@ exports.updateBlog = async (req, res) => {
       }
 }
 
-exports.deleteBlog = async (req, res) => {
+exports.deleteeducation = async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
-        if (!blog_id) {
+        const education_id = req.query.education_id;
+        if (!education_id) {
             return (
                 res.json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide education_id",
                     status: false
                 })
             )
         }
-        const query = 'DELETE FROM blogs WHERE blog_id = $1 RETURNING *';
-        const result = await pool.query(query , [blog_id]);
+        const query = 'DELETE FROM educations WHERE education_id = $1 RETURNING *';
+        const result = await pool.query(query , [education_id]);
 
         if(result.rowCount>0){
             res.status(200).json({
@@ -165,32 +195,31 @@ exports.deleteBlog = async (req, res) => {
       }
 }
 
-exports.getAllBlogs = async (req, res) => {
+exports.getAlleducations = async (req, res) => {
     const client = await pool.connect();
     try {
 
         let limit = req.query.limit;
         let page = req.query.page
 
-        
+        let result;
 
         if (!page || !limit) {
-            return (
-                res.json({
-                    message: "page , limit, must be provided , it seems one or both of them are missing",
-                    status: false,
-                })
-            )
+            const query = 'SELECT * FROM educations'
+            result = await pool.query(query);
+           
         }
-        limit = parseInt(limit);
-        let offset= (parseInt(page)-1)* limit
 
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
 
-        const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        const result = await pool.query(query , [limit , offset]);
+        const query = 'SELECT * FROM educations LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset]);
+
+      
+        }
        
-
-
         if (result.rows) {
             res.json({
                 message: "Fetched",
@@ -218,21 +247,21 @@ exports.getAllBlogs = async (req, res) => {
 
 }
 
-exports.getBlogById = async (req, res) => {
+exports.geteducationById= async (req, res) => {
     const client = await pool.connect();
     try {
-        const blog_id = req.query.blog_id;
+        const education_id = req.query.education_id;
 
-        if (!blog_id) {
+        if (!education_id) {
             return (
                 res.status(400).json({
-                    message: "Please Provide blog_id",
+                    message: "Please Provide education_id",
                     status: false
                 })
             )
         }
-        const query = 'SELECT * FROM blogs WHERE blog_id = $1'
-        const result = await pool.query(query , [blog_id]);
+        const query = 'SELECT * FROM educations WHERE education_id = $1'
+        const result = await pool.query(query , [education_id]);
 
         if (result.rowCount>0) {
             res.json({
