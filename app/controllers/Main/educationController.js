@@ -10,12 +10,13 @@ exports.addeducations = async (req, res) => {
         const graduation_year = req.body.graduation_year ;
         const end_date = req.body.end_date;
         const description= req.body.description;
+        const user_id = req.body.user_id ;
 
 
 
 
         
-        const query = 'INSERT INTO educations (university_name , degree , location , graduation_year , end_date , description) VALUES ($1 , $2 , $3 , $4 , $5 , $6) RETURNING*'
+        const query = 'INSERT INTO educations (university_name , degree , location , graduation_year , end_date , description , user_id) VALUES ($1 , $2 , $3 , $4 , $5 , $6 , $7) RETURNING*'
         const result = await pool.query(query , 
             [
                 university_name ? university_name : null,
@@ -23,7 +24,8 @@ exports.addeducations = async (req, res) => {
                 location ? location : null ,
                 graduation_year ?graduation_year : null,
                 end_date ? end_date : null,
-                description ? description : null
+                description ? description : null,
+                user_id ? user_id : null
             ]);
 
 
@@ -218,6 +220,68 @@ exports.getAlleducations = async (req, res) => {
         result = await pool.query(query , [limit , offset]);
 
       
+        }
+       
+        if (result.rows) {
+            res.json({
+                message: "Fetched",
+                status: true,
+                result: result.rows
+            })
+        }
+        else {
+            res.json({
+                message: "could not fetch",
+                status: false
+            })
+        }
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+    finally {
+        client.release();
+      }
+
+}
+
+exports.getAlleducationsOfUser = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const user_id = req.query.user_id;
+        let limit = req.query.limit;
+        let page = req.query.page;
+
+        console.log(user_id)
+
+
+        if(!user_id){
+            return(
+                res.json({
+                    message: "Please Enter user_id",
+                    status : false
+                })
+            )
+        }
+        let result;
+
+        if (!page || !limit) {
+            const query = 'SELECT * FROM educations WHERE user_id = $1'
+            result = await pool.query(query , [user_id]);
+           
+        }
+
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
+
+        const query = 'SELECT * FROM educations WHERE user_id = $3 LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset , user_id]);
+
         }
        
         if (result.rows) {

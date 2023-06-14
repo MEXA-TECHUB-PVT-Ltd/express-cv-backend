@@ -6,7 +6,9 @@ const controller = require("../../controllers/Main/educationController")
 router.post("/addEducation" , controller.addeducations);
 router.put("/updateEducation" , controller.updateeducation);
 router.delete("/deleteEducation" , controller.deleteeducation);
+router.get("/getAlleducationsOfUser" , controller.getAlleducationsOfUser);
 router.get("/getAllEducations" , controller.getAlleducations);
+
 router.get("/getEducationById" , controller.geteducationById);
 
 

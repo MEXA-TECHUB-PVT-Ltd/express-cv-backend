@@ -42,6 +42,12 @@ app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
  app.use("/emailVerification", require("./app/routes/EmailVerification/EmailVerificationRoute"))
 
 
+ app.use("/template", require("./app/routes/Main/resumeTemplateRoute"));
+ app.use("/terms_and_condtions" , require("./app/routes/Main/terms_and_conditionsRoute"))
+ app.use("/privacy_policy" , require("./app/routes/Main/privacy_policyRoute"))
+ app.use("/about_us" , require("./app/routes/Main/about_usRoute"));
+ app.use("/faq" , require("./app/routes/Main/faqRoute"))
+
 
  app.use(auth)
 
@@ -54,12 +60,7 @@ app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
  app.use("/interest", require("./app/routes/Main/interestRoute"));
  app.use("/language", require("./app/routes/Main/languageRoute"));
  app.use("/reference", require("./app/routes/Main/referenceRoute"))
- app.use("/template", require("./app/routes/Main/resumeTemplateRoute"));
  app.use("/resume", require("./app/routes/Main/resumeRoute"))
- app.use("/terms_and_condtions" , require("./app/routes/Main/terms_and_conditionsRoute"))
- app.use("/privacy_policy" , require("./app/routes/Main/privacy_policyRoute"))
- app.use("/about_us" , require("./app/routes/Main/about_usRoute"));
- app.use("/faq" , require("./app/routes/Main/faqRoute"))
 
 
 const server = app.listen(PORT, () => {

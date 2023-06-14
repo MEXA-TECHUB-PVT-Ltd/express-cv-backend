@@ -5,21 +5,23 @@ exports.addObjective = async (req, res) => {
     const client = await pool.connect();
     try {
         const description = req.body.description;
+        const user_id = req.body.user_id;
 
-        if (!description) {
+        if (!description || !user_id) {
             return (
                 res.json({
-                    message: "Please provide description for creating Objective",
+                    message: "Please provide description and user_id for creating Objective",
                     status: false
                 })
             )
         }
 
         
-        const query = 'INSERT INTO objectives (description) VALUES ($1) RETURNING*'
+        const query = 'INSERT INTO objectives (description , user_id) VALUES ($1 , $2) RETURNING*'
         const result = await pool.query(query , 
             [
                 description ? description : null,
+                user_id ? user_id : null,
             ]);
 
             
@@ -179,10 +181,69 @@ exports.getAllObjectives = async (req, res) => {
 
       
         }
-       
 
 
-       
+        if (result.rows) {
+            res.json({
+                message: "Fetched",
+                status: true,
+                result: result.rows
+            })
+        }
+        else {
+            res.json({
+                message: "could not fetch",
+                status: false
+            })
+        }
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+    finally {
+        client.release();
+      }
+
+}
+exports.getAllUserObjectives = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const user_id = req.query.user_id;
+        let limit = req.query.limit;
+        let page = req.query.page
+
+        if(!user_id){
+            return(
+                res.json({
+                    message: "Please Provide user_id to get it",
+                    status : false
+                })
+            )
+        }
+
+        console.log(user_id)
+
+        let result;
+
+        if (!page || !limit) {
+            const query = 'SELECT * FROM objectives WHERE user_id = $1'
+            result = await pool.query(query , [user_id]);
+           
+        }
+
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
+
+        const query = 'SELECT * FROM objectives WHERE user_id = $3 LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset , user_id]);
+
+      
+        }
 
 
         if (result.rows) {

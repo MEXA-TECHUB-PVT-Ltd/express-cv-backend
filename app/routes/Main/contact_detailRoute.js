@@ -7,6 +7,7 @@ router.post("/addContact_detail" , controller.addContact_details);
 router.put("/updateContact_detail" , controller.updatecontact_detail);
 router.delete("/deleteContact_detail" , controller.deletecontact_detail);
 router.get("/getAllContact_details" , controller.getAllcontact_details);
+router.get("/getAllUserContactDetails" , controller.getAllUserContactDetails);
 router.get("/getContact_detailById" , controller.getcontact_detailById);
 
 
