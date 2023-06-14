@@ -40,14 +40,18 @@ CREATE TABLE IF NOT EXISTS blogs(
 
 CREATE TABLE IF NOT EXISTS objectives(
   objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  user_id Int,
   description TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
 
+
+
 CREATE TABLE IF NOT EXISTS contact_details(
   contact_detail_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  user_id INT, 
   surname TEXT,
   first_name Text ,
   phone TEXT ,
@@ -71,7 +75,6 @@ CREATE TABLE IF NOT EXISTS educations(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
 
 CREATE TABLE IF NOT EXISTS experiences(
   experience_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,

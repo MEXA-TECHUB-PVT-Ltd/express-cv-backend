@@ -10,12 +10,13 @@ exports.addContact_details = async (req, res) => {
         const email = req.body.email ;
         const address = req.body.address;
         const driving_license_number= req.body.driving_license_number;
+        const user_id = req.body.user_id ;
 
 
 
 
         
-        const query = 'INSERT INTO contact_details (surname , first_name , phone , email , address , driving_license_number) VALUES ($1 , $2 , $3 , $4 , $5 , $6) RETURNING*'
+        const query = 'INSERT INTO contact_details (surname , first_name , phone , email , address , driving_license_number , user_id) VALUES ($1 , $2 , $3 , $4 , $5 , $6 , $7) RETURNING*'
         const result = await pool.query(query , 
             [
                 surname ? surname : null,
@@ -23,7 +24,8 @@ exports.addContact_details = async (req, res) => {
                 phone ? phone : null ,
                 email ?email : null,
                 address ? address : null,
-                driving_license_number ? driving_license_number : null
+                driving_license_number ? driving_license_number : null,
+                user_id ? user_id : null
             ]);
 
 
@@ -246,6 +248,59 @@ exports.getAllcontact_details = async (req, res) => {
       }
 
 }
+exports.getAllUserContactDetails = async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const user_id = req.query.user_id;
+        let limit = req.query.limit;
+        let page = req.query.page
+
+        console.log(user_id)
+        let result;
+
+        if (!page || !limit) {
+            const query = 'SELECT * FROM contact_details WHERE user_id = $1'
+            result = await pool.query(query , [user_id]);
+           
+        }
+
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
+
+        const query = 'SELECT * FROM contact_details WHERE user_id= $3 LIMIT $1 OFFSET $2'
+        result = await pool.query(query , [limit , offset , user_id]);
+
+      
+        }
+       
+        if (result.rows) {
+            res.json({
+                message: "Fetched",
+                status: true,
+                result: result.rows
+            })
+        }
+        else {
+            res.json({
+                message: "could not fetch",
+                status: false
+            })
+        }
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+    finally {
+        client.release();
+      }
+
+}
+
 
 exports.getcontact_detailById= async (req, res) => {
     const client = await pool.connect();
