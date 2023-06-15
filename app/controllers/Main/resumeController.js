@@ -454,23 +454,39 @@ exports.downloadsByYear = async (req, res) => {
                   WHERE date_part('year', downloaded_at) = $1;`,
             values: [year],
           };
-
         const result = await pool.query(query);
 
         const output = {};
+        let count =0;
         result.rows.forEach(row => {
           const month = row.month;
           if (!output[month]) {
             output[month] = [];
           }
           output[month].push(row);
+          console.log(output[month].length)
+    
         });
+        
 
+        let sum = 0;
+
+        for (const month in output) {
+          const records =output[month];
+          const count = records.length;
+          sum += count;
+        }
+        
+        console.log(`Total count: ${sum}`);
+        
+
+    
 
         if (output) {
             res.status(201).json({
                 message: "Fetch all records",
                 status: true,
+                total_counts_of_year : sum ,
                 result: output
             })
         }
@@ -526,6 +542,7 @@ exports.downloadsByMonth = async (req, res) => {
             res.status(201).json({
                 message: "Fetched",
                 status: true,
+                count : result.rows.length,
                 result: result.rows
             })
         }
@@ -582,6 +599,7 @@ exports.downloadsByWeek = async (req, res) => {
             res.status(201).json({
                 message: "Fetched",
                 status: true,
+                count : result.rows.length,
                 result: result.rows
             })
         }
@@ -612,12 +630,13 @@ exports.byRegisteredUsers = async (req,res)=>{
     try {
 
   // Construct the SQL query to fetch the records for the given week
-  const query = `SELECT user_id, array_agg(row_to_json(resume_downloads)) AS resume_downloads
+  const query = `SELECT user_id, COUNT(*) AS resume_download_count, array_agg(row_to_json(resume_downloads)) AS resume_downloads
   FROM (
     SELECT resume_id, downloaded_at, user_id, download_id
     FROM resume_downloads
   ) resume_downloads
-  GROUP BY user_id;`;
+  GROUP BY user_id;
+  `;
 
 
   const result = await pool.query(query);
@@ -665,7 +684,7 @@ exports.by_days = async (req,res)=>{
             )
         }
   // Construct the SQL query to fetch the records for the given week
-  const query = `SELECT user_id, array_agg(row_to_json(resume_downloads)) AS resume_downloads
+  const query = `SELECT user_id,COUNT(*) AS resume_download_count, array_agg(row_to_json(resume_downloads)) AS resume_downloads
   FROM (
     SELECT resume_id, downloaded_at, user_id, download_id
     FROM resume_downloads
@@ -673,7 +692,6 @@ exports.by_days = async (req,res)=>{
   ) resume_downloads
  
   GROUP BY user_id;`;
-
 
   const result = await pool.query(query , [date]);
 

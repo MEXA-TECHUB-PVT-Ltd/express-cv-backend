@@ -144,6 +144,14 @@ exports.updateProfile= async (req,res)=>{
 
         const user_name= req.body.user_name;
         const image = req.body.image ;
+        const educations = req.body.educations ;
+        const skills = req.body.skills ;
+        const interests = req.body.interests;
+        const experiences = req.body.experiences;
+        const contact_details= req.body.contact_details;
+        const languages = req.body.languages;
+
+
 
 
         let query = 'UPDATE users SET ';
@@ -161,6 +169,43 @@ exports.updateProfile= async (req,res)=>{
             values.push(image)
             index ++
         }
+
+        if(educations){
+            query+= `educations = $${index} , `;
+            values.push(educations)
+            index ++
+        }
+
+        if(skills){
+            query+= `skills = $${index} , `;
+            values.push(skills)
+            index ++
+        }
+
+        if(interests){
+            query+= `interests = $${index} , `;
+            values.push(interests)
+            index ++
+        }
+
+        if(experiences){
+            query+= `experiences = $${index} , `;
+            values.push(experiences)
+            index ++
+        }
+
+        if(contact_details){
+            query+= `contact_details = $${index} , `;
+            values.push(contact_details)
+            index ++
+        }
+
+        if(languages){
+            query+= `languages = $${index} , `;
+            values.push(languages)
+            index ++
+        }
+
 
         query += 'WHERE user_id = $1 RETURNING*'
 
@@ -230,8 +275,79 @@ exports.viewProfile = async(req,res)=>{
             return(res.json({message : "Please provide user_id" , status : false}))
          }
 
-
-         const query = 'SELECT * FROM users WHERE user_id = $1';
+         const query = `SELECT
+         json_build_object(
+           'user_id', u.user_id,
+           'user_name', u.user_name,
+           'email', u.email,
+           'image', u.image,
+           'skills', (
+            SELECT json_agg(json_build_object('skill_id', s.skill_id, 'skill_name', s.skill_name, 'skill_level', s.skill_level))
+            FROM skills s
+            WHERE s.skill_id = ANY(u.skills)
+          ),
+          'educations', (
+            SELECT json_agg(json_build_object('education_id', e.education_id, 'university_name', e.university_name, 'degree', e.degree, 'location', e.location, 'graduation_year', e.graduation_year, 'end_date', e.end_date, 'description', e.description))
+            FROM educations e
+            WHERE e.education_id = ANY(u.educations)
+          ),
+          'interests', (
+            SELECT json_agg(json_build_object('interest_id', i.interest_id, 'user_id', i.user_id, 'text', i.text))
+            FROM interests i
+            WHERE i.interest_id = ANY(u.interests)
+          ),
+          'experiences', (
+            SELECT json_agg(json_build_object('experience_id', x.experience_id, 'user_id', x.user_id, 'position', x.position, 'company', x.company, 'location', x.location, 'start_date', x.start_date, 'end_date', x.end_date, 'description', x.description))
+            FROM experiences x
+            WHERE x.experience_id = ANY(u.experiences)
+          ),
+          'contact_details', (
+            SELECT json_agg(json_build_object('contact_detail_id', cd.contact_detail_id, 'user_id', cd.user_id, 'surname', cd.surname, 'first_name', cd.first_name, 'phone', cd.phone, 'email', cd.email, 'address', cd.address, 'driving_license_number', cd.driving_license_number))
+            FROM contact_details cd
+            WHERE cd.contact_detail_id = ANY(u.contact_details)
+          ),
+          'languages', (
+             SELECT json_agg(json_build_object('language_id', li.language_id, 'user_id', li.user_id, 'language_name', li.language_name))
+             FROM languages li
+             WHERE li.language_id = ANY(u.languages)
+           ),
+           'All_user_added_Data',
+           json_build_object(
+             'skills', (
+               SELECT json_agg(json_build_object('skill_id', s.skill_id, 'skill_name', s.skill_name, 'skill_level', s.skill_level))
+               FROM skills s
+               WHERE s.user_id = u.user_id
+             ),
+             'educations', (
+               SELECT json_agg(json_build_object('education_id', e.education_id, 'university_name', e.university_name, 'degree', e.degree, 'location', e.location, 'graduation_year', e.graduation_year, 'end_date', e.end_date, 'description', e.description))
+               FROM educations e
+               WHERE e.user_id = u.user_id
+             ),
+             'interests', (
+               SELECT json_agg(json_build_object('interest_id', i.interest_id, 'user_id', i.user_id, 'text', i.text))
+               FROM interests i
+               WHERE i.user_id = u.user_id
+             ),
+             'experiences', (
+               SELECT json_agg(json_build_object('experience_id', x.experience_id, 'user_id', x.user_id, 'position', x.position, 'company', x.company, 'location', x.location, 'start_date', x.start_date, 'end_date', x.end_date, 'description', x.description))
+               FROM experiences x
+               WHERE x.user_id = u.user_id
+             ),
+             'contact_details', (
+               SELECT json_agg(json_build_object('contact_detail_id', cd.contact_detail_id, 'user_id', cd.user_id, 'surname', cd.surname, 'first_name', cd.first_name, 'phone', cd.phone, 'email', cd.email, 'address', cd.address, 'driving_license_number', cd.driving_license_number))
+               FROM contact_details cd
+               WHERE cd.user_id = u.user_id
+             ),
+             'languages', (
+                SELECT json_agg(json_build_object('language_id', li.language_id, 'user_id', li.user_id, 'language_name', li.language_name))
+                FROM languages li
+                WHERE li.user_id = u.user_id
+              )
+           )
+         ) AS user_data
+       FROM users u
+       WHERE u.user_id = $1;`;
+       
          const result = await pool.query(query , [user_id]);
 
 
