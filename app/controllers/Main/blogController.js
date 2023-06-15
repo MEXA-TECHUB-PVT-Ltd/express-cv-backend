@@ -168,28 +168,25 @@ exports.deleteBlog = async (req, res) => {
 exports.getAllBlogs = async (req, res) => {
     const client = await pool.connect();
     try {
-
         let limit = req.query.limit;
         let page = req.query.page
 
         
-
         if (!page || !limit) {
-            return (
-                res.json({
-                    message: "page , limit, must be provided , it seems one or both of them are missing",
-                    status: false,
-                })
-            )
+            const query = 'SELECT * FROM blogs'
+            result = await pool.query(query);
+           
         }
-        limit = parseInt(limit);
-        let offset= (parseInt(page)-1)* limit
 
+        if(page && limit){
+            limit = parseInt(limit);
+            let offset= (parseInt(page)-1)* limit
 
         const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        const result = await pool.query(query , [limit , offset]);
-       
+        result = await pool.query(query , [limit , offset]);
 
+      
+        }
 
         if (result.rows) {
             res.json({

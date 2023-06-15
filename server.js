@@ -9,8 +9,8 @@ require('dotenv').config()
 const auth = require('./app/middlewares/auth')
 
 
-  app.use("/resume_template_images" , express.static("resume_template_images"))
-  app.use("/user_profile_images" , express.static("user_profile_images"))
+app.use("/resume_template_images" , express.static("resume_template_images"))
+app.use("/user_profile_images" , express.static("user_profile_images"))
   
 const cors = require("cors");
 
@@ -49,7 +49,7 @@ app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
  app.use("/faq" , require("./app/routes/Main/faqRoute"))
 
 
- app.use(auth)
+//  app.use(auth)
 
  app.use("/blog", require("./app/routes/Main/blogRoute"))
  app.use("/objective", require("./app/routes/Main/objectiveRoute"))

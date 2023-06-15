@@ -7,16 +7,38 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT ,
   password TEXT,
   image TEXT,
+  educations INT[] , 
+  experiences INT[],
+  skills INT[],
+  interests INT[],
+  contact_details INT[],
+  languages INT[],
   block BOOLEAN DEFAULT false
 );
+-- update user TABLE
+-- ALTER TABLE users 
+-- ADD COLUMN educations INT[];
 
+-- ALTER TABLE users 
+-- ADD COLUMN experiences INT[];
+
+-- ALTER TABLE users 
+-- ADD COLUMN skills INT[];
+
+-- ALTER TABLE users 
+-- ADD COLUMN interests INT[];
+
+-- ALTER TABLE users 
+-- ADD COLUMN contact_details INT[];
+
+-- ALTER TABLE users 
+-- ADD COLUMN languages INT[];
 
 CREATE TABLE IF NOT EXISTS otpStored(
   otp_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY ,
   email  TEXT ,
   otp TEXT 
 );
-
 
 CREATE TABLE IF NOT EXISTS admins(
   admin_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -28,7 +50,6 @@ CREATE TABLE IF NOT EXISTS admins(
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-
 CREATE TABLE IF NOT EXISTS blogs(
   blog_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   title TEXT,
@@ -37,7 +58,6 @@ CREATE TABLE IF NOT EXISTS blogs(
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-
 CREATE TABLE IF NOT EXISTS objectives(
   objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   user_id Int,
@@ -45,9 +65,6 @@ CREATE TABLE IF NOT EXISTS objectives(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
-
-
 
 CREATE TABLE IF NOT EXISTS contact_details(
   contact_detail_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -61,7 +78,6 @@ CREATE TABLE IF NOT EXISTS contact_details(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
 
 CREATE TABLE IF NOT EXISTS educations(
   education_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -98,16 +114,13 @@ CREATE TABLE IF NOT EXISTS skills(
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-
-
 CREATE TABLE IF NOT EXISTS interests(
   interest_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
-  user_id TEXT,
+  user_id INT,
   text TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
 
 
 CREATE TABLE IF NOT EXISTS languages(
@@ -117,6 +130,7 @@ CREATE TABLE IF NOT EXISTS languages(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
 
 
 CREATE TABLE IF NOT EXISTS references_table (
