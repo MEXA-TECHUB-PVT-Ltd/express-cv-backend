@@ -6,6 +6,8 @@ exports.addBlog = async (req, res) => {
     try {
         const title = req.body.title;
         const description = req.body.description;
+        const cover_image = req.body.cover_image;
+
 
         if (!title) {
             return (
@@ -17,11 +19,12 @@ exports.addBlog = async (req, res) => {
         }
 
         
-        const query = 'INSERT INTO blogs (title , description) VALUES ($1 , $2 ) RETURNING*'
+        const query = 'INSERT INTO blogs (title , description , cover_image) VALUES ($1 , $2 , $3 ) RETURNING*'
         const result = await pool.query(query , 
             [
                 title ? title : null ,
                 description ? description : null,
+                cover_image? cover_image : null
             ]);
 
             
@@ -59,6 +62,7 @@ exports.updateBlog = async (req, res) => {
         const blog_id = req.body.blog_id;
         const title = req.body.title;
         const description = req.body.description;
+        const cover_image = req.body.cover_image;
 
 
         if (!blog_id) {
@@ -86,6 +90,12 @@ exports.updateBlog = async (req, res) => {
         if(description){
             query+= `description = $${index} , `;
             values.push(description)
+            index ++
+        }
+
+        if(cover_image){
+            query+= `cover_image = $${index} , `;
+            values.push(cover_image)
             index ++
         }
 

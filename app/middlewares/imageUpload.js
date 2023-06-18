@@ -22,6 +22,14 @@ const hairStylesStorage = multer.diskStorage({
     }
     cb(null , dir)
 }
+else if(req.body.image_type === 'blog_image'){
+  const dir = './blog_images/';
+
+  if(!fs.existsSync(dir)){
+      fs.mkdirSync(dir, {recursive:true});
+  }
+  cb(null , dir)
+}
     else {
       cb(new Error('Invalid image type or format'));
     }
