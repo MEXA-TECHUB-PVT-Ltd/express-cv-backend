@@ -49,7 +49,7 @@ app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
  app.use("/faq" , require("./app/routes/Main/faqRoute"))
 
 
-//  app.use(auth)
+// app.use(auth)
 
  app.use("/blog", require("./app/routes/Main/blogRoute"))
  app.use("/objective", require("./app/routes/Main/objectiveRoute"))

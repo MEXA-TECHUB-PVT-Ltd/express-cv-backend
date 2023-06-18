@@ -17,12 +17,14 @@ exports.addCreateResume = async (req, res) => {
         const skill = req.body.skill;
         const language = req.body.language;
         const reference = req.body.reference;
+        const resume_template_id = req.body.resume_template_id;
 
 
-        if (!user_id) {
+
+        if (!user_id || !resume_template_id) {
             return (
                 res.json({
-                    message: "User_id could must be provided",
+                    message: "User_id and resume_template_id must be provided",
                     status: false
                 })
             )
@@ -30,8 +32,8 @@ exports.addCreateResume = async (req, res) => {
 
 
         const query = `INSERT INTO resume_table (user_id , resume_title , resume_objective , contact_detail
-            , education , experience , interest , skill , language , reference
-            ) VALUES ($1 , $2 , $3 , $4 , $5 , $6 ,$7 , $8 , $9  ,$10) RETURNING*`
+            , education , experience , interest , skill , language , reference , resume_template_id
+            ) VALUES ($1 , $2 , $3 , $4 , $5 , $6 ,$7 , $8 , $9  ,$10 , $11) RETURNING*`
         const result = await pool.query(query,
             [
                 user_id ? user_id : null,
@@ -43,7 +45,8 @@ exports.addCreateResume = async (req, res) => {
                 interest ? interest : null,
                 skill ? skill : null,
                 language ? language : null,
-                reference ? reference : null
+                reference ? reference : null,
+                resume_template_id ? resume_template_id : null,
             ]);
 
 
@@ -89,7 +92,7 @@ exports.getResumesByUser_id = async (req, res) => {
             )
         }
 
-        const query = `SELECT r.resume_id, r.user_id, r.resume_title,
+        const query = `SELECT r.resume_id, r.user_id, r.resume_title, r.resume_template_id,
         json_agg(DISTINCT o.*) AS resume_objective,
         json_agg(DISTINCT cd.*) AS contact_details,
         json_agg(DISTINCT e.*) AS education,
@@ -160,7 +163,7 @@ exports.resumeById = async (req, res) => {
             )
         }
 
-        const query = `SELECT r.resume_id, r.user_id, r.resume_title,
+        const query = `SELECT r.resume_id, r.user_id, r.resume_title,r.resume_template_id,
         json_agg(DISTINCT o.*) AS resume_objective,
         json_agg(DISTINCT cd.*) AS contact_details,
         json_agg(DISTINCT e.*) AS education,
@@ -229,6 +232,7 @@ exports.EditResume = async (req, res) => {
         const skill = req.body.skill;
         const language = req.body.language;
         const reference = req.body.reference;
+        const resume_template_id = req.body.resume_template_id;
 
 
         if (!resume_id) {
@@ -298,6 +302,12 @@ exports.EditResume = async (req, res) => {
             index ++
         }
 
+
+        if(resume_template_id){
+            query+= `resume_template_id = $${index} , `;
+            values.push(resume_template_id)
+            index ++
+        }
 
         query += 'WHERE resume_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");

@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS blogs(
   blog_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   title TEXT,
   description TEXT,
+  cover_image TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -122,11 +123,11 @@ CREATE TABLE IF NOT EXISTS interests(
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-
 CREATE TABLE IF NOT EXISTS languages(
   language_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   user_id TEXT,
   language_name TEXT,
+  language_level TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -153,6 +154,7 @@ CREATE TABLE IF NOT EXISTS resume_templates(
 
 CREATE TABLE IF NOT EXISTS resume_table(
   resume_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  resume_template_id INT,
   user_id INTEGER,
   resume_title TEXT,
   resume_objective INT[],
@@ -166,7 +168,6 @@ CREATE TABLE IF NOT EXISTS resume_table(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-
 
 CREATE TABLE IF NOT EXISTS terms_and_condtions(
   terms_and_condition_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,

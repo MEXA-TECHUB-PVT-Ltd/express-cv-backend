@@ -6,21 +6,34 @@ exports.addlanguage = async (req, res) => {
     try {
         const user_id = req.body.user_id;
         const language_name = req.body.language_name;
+        const language_level = req.body.language_level;
 
-        if (!language_name || !user_id) {
+        if(language_level == 'beginner' || language_level == 'intermediate' || language_level == 'advance'){
+
+        }else{
             return (
                 res.json({
-                    message: "Please provide language_name and user_id for creating language",
+                    message: "Please provide language_level one of these : [beginner, intermediate , advance]",
                     status: false
                 })
             )
         }
 
-        const query = 'INSERT INTO languages (language_name , user_id) VALUES ($1 , $2) RETURNING*'
+        if (!language_name || !user_id || !language_level) {
+            return (
+                res.json({
+                    message: "Please provide language_name , language_level and user_id for creating language",
+                    status: false
+                })
+            )
+        }
+
+        const query = 'INSERT INTO languages (language_name , user_id , language_level) VALUES ($1 , $2 , $3) RETURNING*'
         const result = await pool.query(query , 
             [
                 language_name ? language_name : null ,
                 user_id ? user_id : null,
+                language_level? language_level : null
             ]);
 
             
@@ -57,6 +70,22 @@ exports.updatelanguage = async (req, res) => {
     try {
         const language_id = req.body.language_id;
         const language_name = req.body.language_name;
+        const language_level = req.body.language_level;
+
+
+        if(language_level){
+            if(language_level == 'beginner' || language_level == 'intermediate' || language_level == 'advance'){
+
+            }else{
+                return (
+                    res.json({
+                        message: "Please provide language_level one of these : [beginner, intermediate , advance]",
+                        status: false
+                    })
+                )
+            }
+        }
+       
 
 
         if (!language_id) {
@@ -73,15 +102,17 @@ exports.updatelanguage = async (req, res) => {
         let index = 2;
         let values =[language_id];
 
-
-
         if(language_name){
             query+= `language_name = $${index} , `;
             values.push(language_name)
             index ++
         }
+        if(language_level){
+            query+= `language_level = $${index} , `;
+            values.push(language_level)
+            index ++
+        }
         
-
         query += 'WHERE language_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
