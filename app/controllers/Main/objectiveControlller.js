@@ -1,317 +1,291 @@
-const {pool} = require("../../config/db.config");
-
-
+const { pool } = require("../../config/db.config");
 exports.addObjective = async (req, res) => {
-    const client = await pool.connect();
+    // CONNECTING TO DB
+
     try {
-        const description = req.body.description;
-        const user_id = req.body.user_id;
 
-        if (!description || !user_id) {
-            return (
-                res.json({
-                    message: "Please provide description and user_id for creating Objective",
-                    status: false
+        // DESTRUCTURE FROM REQUEST BODY
+        const { objective, user_id } = req.body;
+        console.log(objective, user_id)
+        // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
+        if (!objective || !user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "Object can not be added. Both objective and user_id are required"
+            });
+        }
+
+        // SETTING QUERY TO FIND IF THE OBJECTIVE ALREADY EXSISTS OF THE SAME USER
+        const findObjextQuery = 'SELECT * FROM objectives WHERE user_id = $1';
+        console.log(objective, user_id)
+        // SEARCHING FOR THE OBJECTIVE IN DB USING QUERY ABOVE
+        const findObjective = await pool.query(findObjextQuery, [user_id]);
+        console.log(objective, user_id)
+        // CHECKING IF THE OBJECTIVE EXSISTS THEN PERFORM UPDATE
+        if (findObjective.rows[0]) {
+            console.log(objective, user_id)
+            // SETTING UP QUERY TO UPDATE THE OBJECTIVE
+            const query = 'UPDATE objectives SET objective = $1 WHERE user_id = $2 RETURNING *';
+            console.log(objective, user_id)
+            // UPDATING THE DATA USING QUERY ABOVE
+            const savedObjective = await pool.query(query, [objective, user_id]);
+
+            // CHECK IF THE DATA IS NOT SAVED RETURNING RESPONSE WITH STATUS FALSE
+            if (!savedObjective.rows[0]) {
+                return res.status(401).json({
+                    status: false,
+                    message: "Objective did not updated sucessfully",
                 })
-            )
-        }
+            }
 
-        
-        const query = 'INSERT INTO objectives (description , user_id) VALUES ($1 , $2) RETURNING*'
-        const result = await pool.query(query , 
-            [
-                description ? description : null,
-                user_id ? user_id : null,
-            ]);
-
-            
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "objective saved in database",
+            // SENDING RESPONSE WITH STATUS TRUE IF THE DATA WAS UPDATED SUCESSFULLY
+            return res.status(200).json({
                 status: true,
-                result: result.rows[0]
+                message: "Objective updated sucessfully",
+                results: savedObjective.rows[0]
             })
         }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
+        console.log(objective, user_id)
+        // SETTING UP QUERY TO ADD THE OBJECTIVE
+        const query = 'INSERT INTO objectives (objective, user_id) VALUES ($1, $2) RETURNING *';
+
+        // ADDING THE DATA USING QUERY ABOVE
+        const savedObjective = await pool.query(query, [objective, user_id]);
+
+        // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
+        if (!savedObjective.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Object can not be added due to unknown reason while saving in db"
+            });
         }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.messagefalse
+
+        // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
+        res.status(200).json({
+            status: true,
+            message: "Objective added sucessfully",
+            results: savedObjective.rows[0]
         })
+
+
+    } catch (err) {
+
+        // EXCEPTION HANDLING
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error:err.message
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
 exports.updateObjective = async (req, res) => {
-    const client = await pool.connect();
+    // CONNECTING TO DB
+
     try {
-        const objective_id = req.body.objective_id;
-        const description = req.body.description;
 
+        // DESTRUCTURING DATA FROM BODY
+        const { objective_id, objective } = req.body;
 
-        if (!objective_id) {
-            return (
-                res.json({
-                    message: "Please provide objective_id ",
-                    status: false
-                })
-            )
-        }
-
-       
-        let query = 'UPDATE objectives SET ';
-        let index = 2;
-        let values =[objective_id];
-
-        
-        if(description){
-            query+= `description = $${index} , `;
-            values.push(description)
-            index ++
-        }
-
-
-        query += 'WHERE objective_id = $1 RETURNING*'
-        query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
-
-       const result = await pool.query(query , values);
-
-        if (result.rows[0]) {
-            res.json({
-                message: "Updated",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.json({
-                message: "Could not update . Record With this Id may not found or req.body may be empty",
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!objective_id || !objective) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "can not make changes, objective_id and objective is required"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-      }
-}
+        // SETTING UP QUERY TO UPDATE DATA IN DB
+        const query = 'UPDATE objectives SET objective = $1 WHERE objective_id = $2 RETURNING *';
 
+        // UPDATING DATA IN DB USING QUERY ABOVE
+        const objectiveUpdated = await pool.query(query, [
+            objective,
+            objective_id
+        ]);
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!objectiveUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "objective could not be updated because object with this id does not exsists"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "objective updated sucessfully",
+            results: objectiveUpdated.rows[0]
+        })
+
+
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
 exports.deleteObjective = async (req, res) => {
-    const client = await pool.connect();
+    // CONNECTING TO DB
+    const db = await pool.connect();
     try {
-        const objective_id = req.query.objective_id;
-        if (!objective_id) {
-            return (
-                res.json({
-                    message: "Please Provide objective_id",
-                    status: false
-                })
-            )
-        }
-        const query = 'DELETE FROM objectives WHERE objective_id = $1 RETURNING *';
-        const result = await pool.query(query , [objective_id]);
 
-        if(result.rowCount>0){
-            res.status(200).json({
-                message: "Deletion successfull",
-                status: true,
-                deletedRecord: result.rows[0]
-            })
-        }
-        else{
-            res.status(404).json({
-                message: "Could not delete . Record With this Id may not found or req.body may be empty",
+        // DESTRUCTURE FROM REQUEST BODY
+        const { objective_id } = req.body;
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!objective_id) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "can not delete, objective_id is required"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-      }
-}
+        // SETTING UP QUERY TO DELETE DATA IN DB
+        const query = 'DELETE FROM objectives WHERE objective_id = $1';
 
-exports.getAllObjectives = async (req, res) => {
-    const client = await pool.connect();
+        // DELETING DATA IN DB USING QUERY ABOVE
+        const objectiveUpdated = await db.query(query, [
+            objective_id
+        ]);
+
+        // CHECKING IF THE DATA WAS NOT DELETED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (objectiveUpdated.rowCount < 1) {
+            return res.status(401).json({
+                status: false,
+                message: "objective could not be deleted because objective with this id does not exsists"
+            });
+        }
+        // IF THE DATA WAS DELETED THEN SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "objective deleted sucessfully",
+            results: objectiveUpdated.rows[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.getAllObjective = async (req, res) => {
+    // CONNECTING TO DB
+    const db = await pool.connect();
     try {
 
-        let limit = req.query.limit;
-        let page = req.query.page
+        // SETTING UP QUERY TO FETCH ALL DATA FROM DB
+        const query = 'SELECT * FROM objectives';
 
-        let result;
+        // FETCHING ALL DATA FROM DB USING QUERY ABOVE
+        const allObjectives = await db.query(query);
 
-        if (!page || !limit) {
-            const query = 'SELECT * FROM objectives'
-            result = await pool.query(query);
-           
+        // CHECKING IF THE DATA WAS NOT FOUND SENDING RESPONSE WITH STATUS FALSE
+        if (!allObjectives.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
         }
 
-        if(page && limit){
-            limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
-
-        const query = 'SELECT * FROM objectives LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset]);
-
-      
-        }
-
-
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+        // IF THE DB WAS FETCHED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "objectives found sucessfully",
+            results: allObjectives.rows
         })
-    }
-    finally {
-        client.release();
-      }
+    } catch (err) {
 
-}
-exports.getAllUserObjectives = async (req, res) => {
-    const client = await pool.connect();
-    try {
-        const user_id = req.query.user_id;
-        let limit = req.query.limit;
-        let page = req.query.page
-
-        if(!user_id){
-            return(
-                res.json({
-                    message: "Please Provide user_id to get it",
-                    status : false
-                })
-            )
-        }
-
-        console.log(user_id)
-
-        let result;
-
-        if (!page || !limit) {
-            const query = 'SELECT * FROM objectives WHERE user_id = $1'
-            result = await pool.query(query , [user_id]);
-           
-        }
-
-        if(page && limit){
-            limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
-
-        const query = 'SELECT * FROM objectives WHERE user_id = $3 LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset , user_id]);
-
-      
-        }
-
-
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
+        // EXCEPTION HANDLING
+        return res.status(500).json({
             status: false,
-            error: err.message
-        })
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
+exports.getUserObjective = async (req, res) => {
 
-exports.getObjectiveById= async (req, res) => {
-    const client = await pool.connect();
+    // CONNECTING TO DB
+    const db = await pool.connect();
     try {
-        const objective_id = req.query.objective_id;
 
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { user_id } = req.query;
+
+        if (!user_id) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because user_id is required"
+            });
+        }
+
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM objectives WHERE user_id = $1';
+
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const allObjectives = await db.query(query, [user_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!allObjectives.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
+        }
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "objective Found sucessfully",
+            results: allObjectives.rows
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.getObjectiveById = async (req, res) => {
+
+    // CONNECTING TO DB
+    const db = await pool.connect();
+    try {
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { objective_id } = req.query;
+
+        // CHECKING IF DATA IS RECIEVED
         if (!objective_id) {
-            return (
-                res.status(400).json({
-                    message: "Please Provide objective_id",
-                    status: false
-                })
-            )
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because objective_id is required"
+            });
         }
-        const query = 'SELECT * FROM objectives WHERE objective_id = $1'
-        const result = await pool.query(query , [objective_id]);
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM objectives WHERE objective_id = $1';
 
-        if (result.rowCount>0) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows[0]
-            })
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const allObjectives = await db.query(query, [objective_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!allObjectives.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
         }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "objective Found sucessfully",
+            results: allObjectives.rows
         })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }

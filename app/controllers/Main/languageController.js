@@ -1,325 +1,272 @@
-const {pool} = require("../../config/db.config");
-
-
-exports.addlanguage = async (req, res) => {
-    const client = await pool.connect();
+const { pool } = require("../../config/db.config");
+exports.addLanguage = async (req, res) => {
+    console.log("Enter Language")
+    // CONNECTING TO DB
+    // const db = await pool.connect();
     try {
-        const user_id = req.body.user_id;
-        const language_name = req.body.language_name;
-        const language_level = req.body.language_level;
-
-        if(language_level == 'beginner' || language_level == 'intermediate' || language_level == 'advance'){
-
-        }else{
-            return (
-                res.json({
-                    message: "Please provide language_level one of these : [beginner, intermediate , advance]",
-                    status: false
-                })
-            )
+        // DESTRUCTURE FROM REQUEST BODY
+        const { language, fluency, user_id } = req.body;
+        console.log("1")
+        // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
+        if (!language || !user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "Language can not be added. Both language and user_id are required"
+            });
+        }
+        console.log("2")
+        // SETTING UP QUERY TO ADD THE LANGUAGE
+        const query = 'INSERT INTO languages (language, fluency, user_id) VALUES ($1, $2, $3) RETURNING *';
+        console.log("3")
+        // ADDING THE DATA USING QUERY ABOVE
+        const savedLanguage = await pool.query(query, [
+            language,
+            fluency ? fluency : '',
+            user_id]);
+            console.log("4")
+        // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
+        if (!savedLanguage.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Language can not be added due to unknown reason while saving in db"
+            });
         }
 
-        if (!language_name || !user_id || !language_level) {
-            return (
-                res.json({
-                    message: "Please provide language_name , language_level and user_id for creating language",
-                    status: false
-                })
-            )
+        // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
+        console.log("Exit Language")
+        res.status(200).json({
+            status: true,
+            message: "Language added sucessfully",
+            results: savedLanguage.rows[0]
+        });
+
+
+
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.updateLanguage = async (req, res) => {
+    try {
+        // DESTRUCTURING DATA FROM BODY
+        const { language_id, language, fluency } = req.body;
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!language_id || !language) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, language_id and language is required"
+            });
         }
 
-        const query = 'INSERT INTO languages (language_name , user_id , language_level) VALUES ($1 , $2 , $3) RETURNING*'
-        const result = await pool.query(query , 
-            [
-                language_name ? language_name : null ,
-                user_id ? user_id : null,
-                language_level? language_level : null
+        // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
+        if (!fluency) {
+            // SETTING UP QUERY TO UPDATE DATA IN DB IF FLUENCY IS NOT GIVEN
+            const query = 'UPDATE languages SET language = $1 WHERE language_id = $2 RETURNING *';
+
+            // UPDATING DATA IN DB USING QUERY ABOVE
+            const languageUpdated = await pool.query(query, [
+                language,
+                language_id
             ]);
-
-            
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "language saved in database",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.messagefalse
-        })
-    }
-    finally {
-        client.release();
-      }
-
-}
-
-exports.updatelanguage = async (req, res) => {
-    const client = await pool.connect();
-    try {
-        const language_id = req.body.language_id;
-        const language_name = req.body.language_name;
-        const language_level = req.body.language_level;
-
-
-        if(language_level){
-            if(language_level == 'beginner' || language_level == 'intermediate' || language_level == 'advance'){
-
-            }else{
-                return (
-                    res.json({
-                        message: "Please provide language_level one of these : [beginner, intermediate , advance]",
-                        status: false
-                    })
-                )
+            if (!languageUpdated.rows[0]) {
+                return res.status(401).json({
+                    status: false,
+                    message: "language could not be updated because language with this id does not exsists"
+                });
             }
-        }
-       
-
-
-        if (!language_id) {
-            return (
-                res.json({
-                    message: "Please provide language_id ",
-                    status: false
-                })
-            )
-        }
-
-       
-        let query = 'UPDATE languages SET ';
-        let index = 2;
-        let values =[language_id];
-
-        if(language_name){
-            query+= `language_name = $${index} , `;
-            values.push(language_name)
-            index ++
-        }
-        if(language_level){
-            query+= `language_level = $${index} , `;
-            values.push(language_level)
-            index ++
-        }
-        
-        query += 'WHERE language_id = $1 RETURNING*'
-        query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
-
-       const result = await pool.query(query , values);
-
-        if (result.rows[0]) {
-            res.json({
-                message: "Updated",
+            return res.status(200).json({
                 status: true,
-                result: result.rows[0]
-            })
+                message: "language updated sucessfully",
+                results: languageUpdated.rows[0]
+            });
         }
-        else {
-            res.json({
-                message: "Could not update . Record With this Id may not found or req.body may be empty",
+
+        // SETTING UP QUERY TO UPDATE DATA IN DB
+        const query = 'UPDATE languages SET language = $1, fluency = $2 WHERE language_id = $3 RETURNING *';
+
+        // UPDATING DATA IN DB USING QUERY ABOVE
+        const languageUpdated = await pool.query(query, [
+            language,
+            fluency,
+            language_id
+        ]);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!languageUpdated.rows[0]) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "language could not be updated because language with this id does not exsists"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+        res.status(200).json({
+            status: true,
+            message: "language updated sucessfully",
+            results: languageUpdated.rows[0]
         })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
 }
-
-exports.deletelanguage = async (req, res) => {
-    const client = await pool.connect();
+exports.deleteLanguage = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const language_id = req.query.language_id;
-        if (!language_id) {
-            return (
-                res.json({
-                    message: "Please Provide language_id",
-                    status: false
-                })
-            )
-        }
-        const query = 'DELETE FROM languages WHERE language_id = $1 RETURNING *';
-        const result = await pool.query(query , [language_id]);
+        // DESTRUCTURE FROM REQUEST BODY
+        const { language_id } = req.body;
 
-        if(result.rowCount>0){
-            res.status(200).json({
-                message: "Deletion successfull",
-                status: true,
-                deletedRecord: result.rows[0]
-            })
-        }
-        else{
-            res.status(404).json({
-                message: "Could not delete . Record With this Id may not found or req.body may be empty",
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!language_id) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "can not delete, language_id is required"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+        // SETTING UP QUERY TO DELETE DATA IN DB
+        const query = 'DELETE FROM languages WHERE language_id = $1';
+
+        // DELETING DATA IN DB USING QUERY ABOVE
+        const languageUpdated = await db.query(query, [
+            language_id
+        ]);
+
+        // CHECKING IF THE DATA WAS NOT DELETED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (languageUpdated.rowCount < 1) {
+            return res.status(401).json({
+                status: false,
+                message: "language could not be deleted because language with this id does not exsists"
+            });
+        }
+        // IF THE DATA WAS DELETED THEN SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "language deleted sucessfully",
+            results: languageUpdated.rows[0]
         })
-    }
-    finally {
-        client.release();
-      }
-}
-
-exports.getAlllanguages = async (req, res) => {
-    const client = await pool.connect();
-    try {
-
-        let limit = req.query.limit;
-        let page = req.query.page
-
-        
-        if (!page || !limit) {
-            const query = 'SELECT * FROM languages'
-            result = await pool.query(query);
-           
-        }
-
-        if(page && limit){
-            limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
-
-        const query = 'SELECT * FROM languages LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset]);
-
-      
-        }
-
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
+    } catch (err) {
+        return res.status(500).json({
             status: false,
-            error: err.message
-        })
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
-exports.getlanguageById = async (req, res) => {
-    const client = await pool.connect();
+exports.getAllLanguage = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const language_id = req.query.language_id;
+        // SETTING UP QUERY TO FETCH ALL DATA FROM DB
+        const query = 'SELECT * FROM languages';
 
-        if (!language_id) {
-            return (
-                res.status(400).json({
-                    message: "Please Provide language_id",
-                    status: false
-                })
-            )
-        }
-        const query = 'SELECT * FROM languages WHERE language_id = $1'
-        const result = await pool.query(query , [language_id]);
+        // FETCHING ALL DATA FROM DB USING QUERY ABOVE
+        const allLanguages = await db.query(query);
 
-        if (result.rowCount>0) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows[0]
-            })
+        // CHECKING IF THE DATA WAS NOT FOUND SENDING RESPONSE WITH STATUS FALSE
+        if (!allLanguages.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
         }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
+
+        // IF THE DB WAS FETCHED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "languages found sucessfully",
+            results: allLanguages.rows
+        })
+    } catch (err) {
+        return res.status(500).json({
             status: false,
-            error: err.message
-        })
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
-exports.getlanguagesByuser_id = async(req,res)=>{
-    const client = await pool.connect();
+exports.getUserLanguage = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const user_id = req.query.user_id;
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { user_id } = req.query;
+
+        // CHECKING IF THE DATA IS AVAILABLE
         if (!user_id) {
-            return (
-                res.status(400).json({
-                    message: "Please Provide user_id",
-                    status: false
-                })
-            )
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because user_id is required"
+            });
         }
-        const query = 'SELECT * FROM languages WHERE user_id = $1'
-        const result = await pool.query(query , [user_id]);
 
-        if (result.rowCount>0) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM languages WHERE user_id = $1';
+
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const userLanguages = await db.query(query, [user_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!userLanguages.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
         }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "language Found sucessfully",
+            results: userLanguages.rows
         })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
+}
+exports.getLanguageById = async (req, res) => {
+    const db = await pool.connect();
+    try {
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { language_id } = req.query;
 
+        // CHECKING IF DATA IS RECIEVED
+        if (!language_id) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because language_id is required"
+            });
+        }
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM languages WHERE language_id = $1';
+
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const allLanguages = await db.query(query, [language_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!allLanguages.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
+        }
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "objective Found sucessfully",
+            results: allLanguages.rows
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
 }

@@ -1,17 +1,10 @@
-
-const express = require('express');
-
-const router = express.Router();
+const express = require("express");
 const controller = require("../../controllers/Main/resumeTemplateController")
+const multer = require("multer");
+const upload = multer({ dest: 'uploads/templates' });
+const resumeTemplateRoute = express.Router();
 
-const auth = require("../../middlewares/auth")
+resumeTemplateRoute.post("/post-resume-template", upload.single('image'), controller.postResume);
+resumeTemplateRoute.get("/get-resume-template", controller.getAllResumes);
 
-
-router.post("/addTemplate"  , controller.addTemplate);
-router.put("/updateTemplate" , auth ,  controller.updateTemplate);
-router.delete("/deleteTemplate" , auth , controller.deleteTemplate);
-router.get("/getAllTemplates"  , controller.getAllTemplates);
-router.get("/getTemplateById" , controller.getTemplateById);
-
-
-module.exports = router;
+module.exports = resumeTemplateRoute;

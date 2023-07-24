@@ -1,50 +1,49 @@
-const { Pool } = require('pg');
-require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
-
-
-console.log(process.env.USER_NAME)
+const { Pool } = require("pg");
+require("dotenv").config();
+const fs = require("fs");
 
 const pool = new Pool ({
-    host: process.env.HOST, 
-    port : process.env.DB_PORT,
-    user : process.env.USER_NAME ,
-    password : process.env.PASSWORD,
-    database :  process.env.DATABASE,
-    max : process.env.MAX
+    host: process.env.HOST,
+    port: process.env.DB_PORT,
+    user: process.env.USER_NAME,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,         
+    max: process.env.MAX
+});
+pool.on('error', (err)=>{
+    console.log("Unexpected error on idle client : ", err);
+    process.exit(-1);
 });
 
+// when database is connected
 
-pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err);
-    process.exit(-1);
-  });
-  
-  
-  pool.connect((err, client, release) => {
-    if (err) {
-      console.error('Error connecting to database:', err);
-    } else {
-      console.log('Connected to database successfully');
-      
-      release();
-    }
-  });
-
-  const initSql = fs.readFileSync("app/models/init.sql").toString();
-
-  pool.query(initSql , (err , result)=>{
-    if(!err){
-      console.log("All Database tables Initialilzed successfully : ")
-      console.log(result)
+pool.connect((err, client, release)=>{
+    if(err){
+        console.log("Error while connecting to database : " , err)
     }
     else{
-      console.log("Error Occurred While Initializing Database tables");
-      console.log(err)
-    }
-  })
-  
-  module.exports = { pool };
+        console.log(`
+    ################################################
+            connected to db sucessfully
+    ################################################
+`);
 
-  
+        release();
+    }
+});
+
+const initSql = fs.readFileSync("app/models/init.sql").toString();
+
+pool.query(initSql, (err, result)=>{
+    if(!err){
+        console.log(`
+    ################################################
+      All Database tables Inititalized sucessfully
+    ################################################
+    `);
+    }
+    else{
+        console.log("error occurred while initializing database tables");
+    }
+});
+module.exports = {pool};

@@ -1,355 +1,240 @@
-const {pool} = require("../../config/db.config");
-
-
-exports.addeducations = async (req, res) => {
-    const client = await pool.connect();
+const { pool } = require("../../config/db.config");
+exports.addEducation = async (req, res) => {
+    // const db = await pool.connect();
     try {
-        const university_name = req.body.university_name;
-        const degree = req.body.degree;
-        const location = req.body.location ;
-        const graduation_year = req.body.graduation_year ;
-        const end_date = req.body.end_date;
-        const description= req.body.description;
-        const user_id = req.body.user_id ;
-
-
-
-
-        
-        const query = 'INSERT INTO educations (university_name , degree , location , graduation_year , end_date , description , user_id) VALUES ($1 , $2 , $3 , $4 , $5 , $6 , $7) RETURNING*'
-        const result = await pool.query(query , 
-            [
-                university_name ? university_name : null,
-                degree ? degree : null ,
-                location ? location : null ,
-                graduation_year ?graduation_year : null,
-                end_date ? end_date : null,
-                description ? description : null,
-                user_id ? user_id : null
-            ]);
-
-
-            
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "education saved in database",
-                status: true,
-                result: result.rows[0]
-            })
+        console.log("Enter Education")
+        // DESTRUCTURE FROM REQUEST BODY
+        const { title, institute, started_from, ended_at, description, user_id } = req.body;
+        // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
+        if (!title || !institute || !started_from || !ended_at || !description || !user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "Education can not be added. Both all title, institute, started_from, ended_at, description, user_id are required"
+            });
         }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
+
+        // SETTING UP QUERY TO ADD THE LANGUAGE
+        const query = 'INSERT INTO educations (title, institute, started_from, ended_at, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+
+        // ADDING THE DATA USING QUERY ABOVE
+        const savedEducation = await pool.query(query, [
+            title ? title : '',
+            institute ? institute : '',
+            started_from ? started_from : '',
+            ended_at ? ended_at : '',
+            description ? description : '',
+            user_id ? user_id : ''
+        ]);
+
+        // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
+        if (!savedEducation.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Education can not be added due to unknown reason while saving in db"
+            });
         }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
+
+        // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
+        console.log("exit Education")
+        res.status(200).json({
+            status: true,
+            message: "Language added sucessfully",
+            results: savedEducation.rows[0]
+        });
+
+
+
+
+    } catch (err) {
+        return res.status(500).json({
             status: false,
-            error: err.messagefalse
-        })
+            message: "Internal server error",
+            error: err
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
-exports.updateeducation = async (req, res) => {
-    const client = await pool.connect();
+exports.updateEducation = async (req, res) => {
+    // const db = await pool.connect();
     try {
-        const education_id = req.body.education_id;
-        const university_name = req.body.university_name;
-        const degree = req.body.degree;
-        const location = req.body.location ;
-        const graduation_year = req.body.graduation_year ;
-        const end_date = req.body.end_date;
-        const description= req.body.description;
+        // DESTRUCTURING DATA FROM BODY
+        const { title, institute, started_from, ended_at, description, education_id } = req.body;
 
-
-
+        // CHECKING IF THE DATA IS AVAILABLE
         if (!education_id) {
-            return (
-                res.json({
-                    message: "Please provide education_id ",
-                    status: false
-                })
-            )
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, education_id is required"
+            });
         }
 
-
-    
+        // SETTING UP QUERY TO UPDATE DATA IN DB IF FLUENCY IS NOT GIVEN
         let query = 'UPDATE educations SET ';
-        let index = 2;
-        let values =[education_id];
-
-        
-        if(university_name){
-            query+= `university_name = $${index} , `;
-            values.push(university_name)
-            index ++
-        }
-        if(degree){
-            query+= `degree = $${index} , `;
-            values.push(degree)
-            index ++
-        }
-        if(location){
-            query+= `location = $${index} , `;
-            values.push(location)
-            index ++
+        let index = 2
+        let values = [education_id]
+        let combinedquery;
+        // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
+        if (title) {
+            // SETTING UP TITLE IN QUERY
+            query += `title = $${index} , `;
+            values.push(title)
+            index++
         }
 
-        if(graduation_year){
-            query+= `graduation_year = $${index} , `;
-            values.push(graduation_year)
-            index ++
-        }
+        if (institute) {
+            // SETTING UP TITLE IN QUERY
+            query += `institute = $${index} , `;
+            values.push(institute)
+            index++
 
-        if(end_date){
-            query+= `end_date = $${index} , `;
-            values.push(end_date)
-            index ++
         }
-        if(description){
-            query+= `description = $${index} , `;
+        if (started_from) {
+            // SETTING UP TITLE IN QUERY
+            query += `started_from = $${index} , `;
+            values.push(started_from)
+            index++
+        }
+        if (ended_at) {
+            // SETTING UP TITLE IN QUERY
+            query += `ended_at = $${index} , `;
+            values.push(ended_at)
+            index++
+        }
+        if (description) {
+            // SETTING UP TITLE IN QUERY
+            query += `description = $${index} , `;
             values.push(description)
-            index ++
+            index++
         }
-
-
-
-        query += 'WHERE education_id = $1 RETURNING*'
+        // FINALIZING QUERY
+        query += 'WHERE education_id = $1 RETURNING *'
         query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
+        // UPDATING DATA IN DB USING QUERY ABOVE
+        const educationUpdated = await pool.query(query, values);
 
-       const result = await pool.query(query , values);
-
-        if (result.rows[0]) {
-            res.json({
-                message: "Updated",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.json({
-                message: "Could not update . Record With this Id may not found or req.body may be empty",
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "Education could not be updated because Education with this id does not exsists"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+        res.status(200).json({
+            status: true,
+            message: "language updated sucessfully",
+            results: educationUpdated.rows[0]
         })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err
+        });
     }
-    finally {
-        client.release();
-      }
 }
-
-exports.deleteeducation = async (req, res) => {
-    const client = await pool.connect();
+exports.deleteEducation = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const education_id = req.query.education_id;
-        if (!education_id) {
-            return (
-                res.json({
-                    message: "Please Provide education_id",
-                    status: false
-                })
-            )
-        }
-        const query = 'DELETE FROM educations WHERE education_id = $1 RETURNING *';
-        const result = await pool.query(query , [education_id]);
+        // DESTRUCTURE FROM REQUEST BODY
+        const { education_id } = req.body;
 
-        if(result.rowCount>0){
-            res.status(200).json({
-                message: "Deletion successfull",
-                status: true,
-                deletedRecord: result.rows[0]
-            })
-        }
-        else{
-            res.status(404).json({
-                message: "Could not delete . Record With this Id may not found or req.body may be empty",
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!education_id) {
+            return res.status(401).json({
                 status: false,
-            })
+                message: "can not delete, education_id is required"
+            });
         }
 
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-      }
-}
+        // SETTING UP QUERY TO DELETE DATA IN DB
+        const query = 'DELETE FROM educations WHERE education_id = $1';
 
-exports.getAlleducations = async (req, res) => {
-    const client = await pool.connect();
+        // DELETING DATA IN DB USING QUERY ABOVE
+        const educationDeleted = await db.query(query, [
+            education_id
+        ]);
+
+        // CHECKING IF THE DATA WAS NOT DELETED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (educationDeleted.rowCount < 1) {
+            return res.status(401).json({
+                status: false,
+                message: "Education could not be deleted because language with this id does not exsists"
+            });
+        }
+        // IF THE DATA WAS DELETED THEN SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "Education deleted sucessfully",
+            results: educationDeleted.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.getAllEducation = async (req, res) => {
+    const db = await pool.connect();
     try {
 
-        let limit = req.query.limit;
-        let page = req.query.page
-
-        let result;
-
-        if (!page || !limit) {
-            const query = 'SELECT * FROM educations'
-            result = await pool.query(query);
-           
-        }
-
-        if(page && limit){
-            limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
-
-        const query = 'SELECT * FROM educations LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset]);
-
-      
-        }
-       
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
+    } catch (err) {
+        return res.status(500).json({
             status: false,
-            error: err.message
-        })
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
-exports.getAlleducationsOfUser = async (req, res) => {
-    const client = await pool.connect();
+exports.getUserEducation = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const user_id = req.query.user_id;
-        let limit = req.query.limit;
-        let page = req.query.page;
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { user_id } = req.query;
 
-        console.log(user_id)
-
-
-        if(!user_id){
-            return(
-                res.json({
-                    message: "Please Enter user_id",
-                    status : false
-                })
-            )
-        }
-        let result;
-
-        if (!page || !limit) {
-            const query = 'SELECT * FROM educations WHERE user_id = $1'
-            result = await pool.query(query , [user_id]);
-           
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!user_id) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because user_id is required"
+            });
         }
 
-        if(page && limit){
-            limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM educations WHERE user_id = $1';
 
-        const query = 'SELECT * FROM educations WHERE user_id = $3 LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset , user_id]);
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const educations = await db.query(query, [user_id]);
 
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!educations.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
         }
-       
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "educations Found sucessfully",
+            results: educations.rows
         })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }
-
-exports.geteducationById= async (req, res) => {
-    const client = await pool.connect();
+exports.getEducationById = async (req, res) => {
+    const db = await pool.connect();
     try {
-        const education_id = req.query.education_id;
 
-        if (!education_id) {
-            return (
-                res.status(400).json({
-                    message: "Please Provide education_id",
-                    status: false
-                })
-            )
-        }
-        const query = 'SELECT * FROM educations WHERE education_id = $1'
-        const result = await pool.query(query , [education_id]);
-
-        if (result.rowCount>0) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.json({
-                message: "could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
+    } catch (err) {
+        return res.status(500).json({
             status: false,
-            error: err.message
-        })
+            message: "Internal server error"
+        });
     }
-    finally {
-        client.release();
-      }
-
 }

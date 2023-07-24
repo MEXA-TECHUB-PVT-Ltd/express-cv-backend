@@ -1,14 +1,12 @@
-const express = require('express');
-
-const router = express.Router();
+const express = require("express");
 const controller = require("../../controllers/Main/contact_detailsController")
+const personalInfoRouter = express.Router();
 
-router.post("/addContact_detail" , controller.addContact_details);
-router.put("/updateContact_detail" , controller.updatecontact_detail);
-router.delete("/deleteContact_detail" , controller.deletecontact_detail);
-router.get("/getAllContact_details" , controller.getAllcontact_details);
-router.get("/getAllUserContactDetails" , controller.getAllUserContactDetails);
-router.get("/getContact_detailById" , controller.getcontact_detailById);
+personalInfoRouter.post("/add-persona-info", controller.addPersonalInfo);
+personalInfoRouter.put("/edit-persona-info");
+personalInfoRouter.delete("/delete-persona-info");
+personalInfoRouter.get("/get-all-personalInfo");
+personalInfoRouter.get("/get-user-personalInfo", controller.getUserPersonalInfo);
+personalInfoRouter.get("/get-personalInfo-by-id");
 
-
-module.exports = router;
+module.exports = personalInfoRouter;

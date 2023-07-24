@@ -1,16 +1,12 @@
-const express = require('express');
-
-const router = express.Router();
+const express = require("express");
 const controller = require("../../controllers/Main/skillController")
+const skillsRouter = express.Router();
 
-router.post("/addSkill" , controller.addskills);
-router.put("/updateSkill" , controller.updateskill);
-router.delete("/deleteSkill" , controller.deleteskill);
-router.get("/getAllSkills" , controller.getAllskills);
-router.get("/getSkillById" , controller.getskillById);
-router.get("/userSkills" , controller.getskillsByuser_id);
+skillsRouter.post("/add-skill", controller.addSkill);
+skillsRouter.put("/edit-skill");
+skillsRouter.delete("/delete-skill");
+skillsRouter.get("/get-all-skills");
+skillsRouter.get("/get-user-skills", controller.getUserSkill);
+skillsRouter.get("/get-skills-by-id");
 
-
-
-
-module.exports = router;
+module.exports = skillsRouter;
