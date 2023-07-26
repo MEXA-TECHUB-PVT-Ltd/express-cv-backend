@@ -67,3 +67,8 @@ CREATE TABLE IF NOT EXISTS resumes (
   educations INT[] 
   
 );
+CREATE TABLE IF NOT EXISTS otpStored(
+  otp_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY ,
+  email  TEXT ,
+  otp TEXT 
+);

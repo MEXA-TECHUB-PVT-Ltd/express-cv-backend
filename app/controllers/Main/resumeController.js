@@ -151,7 +151,7 @@ exports.getUserResumes = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM REQUEST QUERY
         const { user_id } = req.query;
-
+        console.log(user_id)
         // CHECKING IF THE DATA IS RECIEVED
         if (!user_id) {
             return res.status(404).json({
