@@ -237,3 +237,34 @@ exports.forgetPassword = async (req, res) => {
         });
     }
 }
+exports.otpVerification = async (req,res)=>{
+    const {otp, otp_id}=req.query;
+    try {
+        if(!otp || !otp_id){
+            return res.json({
+                status:false,
+                message:"OTP and otp_id is required"
+            })
+        }
+        const query = 'SELECT * FROM otpStored WHERE otp_id = $1'
+        const findOtp = await pool.query(query, [otp_id]);
+        if(findOtp.rowCount < 1){
+            return res.json({
+                status:false,
+                message:"Invalid OTP Id"
+            })
+        }
+        if(findOtp.rows[0].otp !== otp){
+            return res.json({
+                status:false,
+                message:"Invalid OTP"
+            })
+        }
+        return res.json({
+            status:true,
+            message:"Code Verified Sucessfully"
+        })
+    } catch (err) {
+        
+    }
+}
