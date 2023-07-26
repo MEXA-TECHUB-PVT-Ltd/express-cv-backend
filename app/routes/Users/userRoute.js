@@ -1,23 +1,10 @@
-const express = require('express');
-
-const router = express.Router();
-
-const controller = require("../../controllers/Users/userController")
+const express = require("express");
+const userController = require("../../controllers/Users/userController");
+const userRouter = express.Router();
 const auth = require("../../middlewares/auth")
 
-
-router.post("/register_user" , controller.registerUser);
-router.post("/login" , controller.login);
-router.put("/updateProfile"  ,  controller.updateProfile);
-router.put("/updatePassword" , controller.updatePassword)
-router.put("/updateBlockStatus" , auth ,  controller.updateBlockStatus)
-router.get("/view_user_profile"  , controller.viewProfile)
-router.get("/getAllUsers"  , controller.getAllUsers)
-router.delete("/deleteUser" , auth , controller.deleteUser)
-
-
-
-
-
-
-module.exports = router;
+userRouter.post("/create-user", userController.createUser);
+userRouter.post("/sign-in-user", userController.signInUser);
+userRouter.get("/get-user-data",auth, userController.getUserData);
+userRouter.post("/forget-password", userController.forgetPassword);
+module.exports =  userRouter;

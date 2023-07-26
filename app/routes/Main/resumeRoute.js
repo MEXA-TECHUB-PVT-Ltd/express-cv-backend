@@ -1,26 +1,12 @@
-const express = require('express');
+const express = require("express");
+const controller = require('../../controllers/Main/resumeController')
+const resumesRouter = express.Router();
 
-const router = express.Router();
-const controller = require("../../controllers/Main/resumeController")
+resumesRouter.post("/add-resume", controller.addResumes);
+resumesRouter.put("/update-resume", controller.updateResumes);
+resumesRouter.delete("/delete-resume");
+resumesRouter.get("/get-all-resumes");
+resumesRouter.get("/get-user-resumes", controller.getUserResumes);
+resumesRouter.get("/get-resumes-by-id", controller.getResumesById);
 
-router.post("/createResume" , controller.addCreateResume);
-router.get("/getResumsByUser_id" , controller.getResumesByUser_id);
-router.get("/ResumeById" , controller.resumeById);
-router.put("/Edit_resume" , controller.EditResume);
-router.delete("/deleteResume" , controller.deleteResume);
-router.post("/downloadResume" , controller.downloadResume);
-router.get("/downloadsByYear" , controller.downloadsByYear);
-router.get("/downloadsByMonth" , controller.downloadsByMonth);
-router.get("/downloadsByWeek" , controller.downloadsByWeek);
-router.get("/byRegisteredUsers" , controller.byRegisteredUsers);
-router.get("/byDays" , controller.by_days);
-
-
-
-
-
-
-
-
-
-module.exports = router;
+module.exports = resumesRouter;

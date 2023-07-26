@@ -1,734 +1,375 @@
+const { query } = require("express");
 const { pool } = require("../../config/db.config");
-const fs = require("fs")
-const moment = require('moment')
-
-
-exports.addCreateResume = async (req, res) => {
-    const client = await pool.connect();
+exports.addResumes = async (req, res) => {
+    console.log("Enter addResumes")
     try {
-
-        const user_id = req.body.user_id;
-        const resume_title = req.body.resume_title;
-        const resume_objective = req.body.resume_objective;
-        const contact_detail = req.body.contact_detail;
-        const education = req.body.education;
-        const experience = req.body.experience;
-        const interest = req.body.interest;
-        const skill = req.body.skill;
-        const language = req.body.language;
-        const reference = req.body.reference;
-        const resume_template_id = req.body.resume_template_id;
-
-
-
+        const { resume_template_id, user_id } = req.body;
         if (!user_id || !resume_template_id) {
-            return (
-                res.json({
-                    message: "User_id and resume_template_id must be provided",
-                    status: false
-                })
-            )
-        }
-
-
-        const query = `INSERT INTO resume_table (user_id , resume_title , resume_objective , contact_detail
-            , education , experience , interest , skill , language , reference , resume_template_id
-            ) VALUES ($1 , $2 , $3 , $4 , $5 , $6 ,$7 , $8 , $9  ,$10 , $11) RETURNING*`
-        const result = await pool.query(query,
-            [
-                user_id ? user_id : null,
-                resume_title ? resume_title : null,
-                resume_objective ? resume_objective : null,
-                contact_detail ? contact_detail : null,
-                education ? education : null,
-                experience ? experience : null,
-                interest ? interest : null,
-                skill ? skill : null,
-                language ? language : null,
-                reference ? reference : null,
-                resume_template_id ? resume_template_id : null,
-            ]);
-
-
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "Resume saved in database",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.getResumesByUser_id = async (req, res) => {
-    const client = await pool.connect();
-    try {
-
-        const user_id = req.query.user_id;
-        if (!user_id) {
-            return (
-                res.json({
-                    message: "User_id must be provided",
-                    status: false
-                })
-            )
-        }
-
-        const query = `SELECT r.resume_id, r.user_id, r.resume_title, r.resume_template_id,
-        json_agg(DISTINCT o.*) AS resume_objective,
-        json_agg(DISTINCT cd.*) AS contact_details,
-        json_agg(DISTINCT e.*) AS education,
-        json_agg(DISTINCT ex.*) AS experience,
-        json_agg(DISTINCT i.*) AS interest,
-        json_agg(DISTINCT s.*) AS skill,
-        json_agg(DISTINCT l.*) AS language,
-        json_agg(DISTINCT rt.*) AS reference
-        FROM resume_table r
-        LEFT JOIN objectives o ON r.resume_objective && ARRAY[o.objective_id]
-           LEFT JOIN contact_details cd ON r.contact_detail && ARRAY[cd.contact_detail_id]
-        LEFT JOIN educations e ON r.education && ARRAY[e.education_id]
-        LEFT JOIN experiences ex ON r.experience && ARRAY[ex.experience_id]
-        LEFT JOIN interests i ON r.interest && ARRAY[i.interest_id]
-        LEFT JOIN skills s ON r.skill && ARRAY[s.skill_id]
-        LEFT JOIN languages l ON r.language && ARRAY[l.language_id]
-        LEFT JOIN references_table rt ON r.reference && ARRAY[rt.refrence_id]
-        WHERE r.user_id = $1
-        GROUP BY r.resume_id, r.user_id, r.resume_title;
- `
-
- 
- 
-
-        let result = await pool.query(query , [user_id]);
-        result= result.rows;
-
-          console.log(result);
-        if (result) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                result: result
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.resumeById = async (req, res) => {
-    const client = await pool.connect();
-    try {
-
-        const resume_id = req.query.resume_id;
-        if (!resume_id) {
-            return (
-                res.json({
-                    message: "resume_id must be provided",
-                    status: false
-                })
-            )
-        }
-
-        const query = `SELECT r.resume_id, r.user_id, r.resume_title,r.resume_template_id,
-        json_agg(DISTINCT o.*) AS resume_objective,
-        json_agg(DISTINCT cd.*) AS contact_details,
-        json_agg(DISTINCT e.*) AS education,
-        json_agg(DISTINCT ex.*) AS experience,
-        json_agg(DISTINCT i.*) AS interest,
-        json_agg(DISTINCT s.*) AS skill,
-        json_agg(DISTINCT l.*) AS language,
-        json_agg(DISTINCT rt.*) AS reference
-        FROM resume_table r
-        LEFT JOIN objectives o ON r.resume_objective && ARRAY[o.objective_id]
-           LEFT JOIN contact_details cd ON r.contact_detail && ARRAY[cd.contact_detail_id]
-        LEFT JOIN educations e ON r.education && ARRAY[e.education_id]
-        LEFT JOIN experiences ex ON r.experience && ARRAY[ex.experience_id]
-        LEFT JOIN interests i ON r.interest && ARRAY[i.interest_id]
-        LEFT JOIN skills s ON r.skill && ARRAY[s.skill_id]
-        LEFT JOIN languages l ON r.language && ARRAY[l.language_id]
-        LEFT JOIN references_table rt ON r.reference && ARRAY[rt.refrence_id]
-        WHERE r.resume_id = $1
-        GROUP BY r.resume_id, r.user_id, r.resume_title;
- `
-
- 
-
-        let result = await pool.query(query , [resume_id]);
-
-          console.log(result);
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not fetch",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.EditResume = async (req, res) => {
-    const client = await pool.connect();
-    try {
-
-        const resume_id = req.body.resume_id;
-        const resume_title = req.body.resume_title;
-        const resume_objective = req.body.resume_objective;
-        const contact_detail = req.body.contact_detail;
-        const education = req.body.education;
-        const experience = req.body.experience;
-        const interest = req.body.interest;
-        const skill = req.body.skill;
-        const language = req.body.language;
-        const reference = req.body.reference;
-        const resume_template_id = req.body.resume_template_id;
-
-
-        if (!resume_id) {
-            return (
-                res.json({
-                    message: "resume_id must be provided",
-                    status: false
-                })
-            )
-        }
-
-        let query = 'UPDATE resume_table SET ';
-        let index = 2;
-        let values =[resume_id];
-
-        
-        if(resume_title){
-            query+= `resume_title = $${index} , `;
-            values.push(resume_title)
-            index ++
-        }
-        if(resume_objective){
-            query+= `resume_objective = $${index} , `;
-            values.push(resume_objective)
-            index ++
-        }
-        if(contact_detail){
-            query+= `contact_detail = $${index} , `;
-            values.push(contact_detail)
-            index ++
-        }
-
-        if(experience){
-            query+= `experience = $${index} , `;
-            values.push(experience)
-            index ++
-        }
-
-        if(education){
-            query+= `education = $${index} , `;
-            values.push(education)
-            index ++
-        }
-
-        if(interest){
-            query+= `interest = $${index} , `;
-            values.push(interest)
-            index ++
-        }
-
-
-        if(skill){
-            query+= `skill = $${index} , `;
-            values.push(skill)
-            index ++
-        }
-
-        if(language){
-            query+= `language = $${index} , `;
-            values.push(language)
-            index ++
-        }
-
-        if(reference){
-            query+= `reference = $${index} , `;
-            values.push(reference)
-            index ++
-        }
-
-
-        if(resume_template_id){
-            query+= `resume_template_id = $${index} , `;
-            values.push(resume_template_id)
-            index ++
-        }
-
-        query += 'WHERE resume_id = $1 RETURNING*'
-        query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
-
-
-        const result = await pool.query(query , values )
-
-
-
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "Update",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.deleteResume = async (req, res) => {
-    const client = await pool.connect();
-    try {
-        const resume_id= req.query.resume_id;
-        if (!resume_id) {
-            return (
-                res.json({
-                    message: "resume_id must be provided",
-                    status: false
-                })
-            )
-        }
-        const query = 'DELETE FROM resume_table WHERE resume_id = $1 RETURNING *';
-        const result = await pool.query(query , [resume_id]);
-
-        if(result.rowCount>0){
-            res.status(200).json({
-                message: "Deletion successfull",
-                status: true,
-                deletedRecord: result.rows[0]
-            })
-        }
-        else{
-            res.status(404).json({
-                message: "Could not delete . Record With this Id may not found or req.body may be empty",
+            return res.status(401).json({
                 status: false,
-            })
+                message: "user_id and resume_template_id are required"
+            });
         }
-
-    }
-    catch (err) {
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-      }
-}
-
-exports.downloadResume = async (req, res) => {
-    const client = await pool.connect();
-    try {
-
-        const user_id = req.body.user_id;
-        const resume_id = req.body.resume_id;
-
-        if (!user_id  || !resume_id) {
-            return (
-                res.json({
-                    message: "User_id and resume_id must be provided",
-                    status: false
-                })
-            )
+        const query = 'INSERT INTO resumes (resume_template_id, user_id) VALUES ($1, $2) RETURNING *'
+        const savedResumes = await pool.query(query, [resume_template_id, user_id]);
+        if (!savedResumes.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Resume not added due to issue while saving in db"
+            });
         }
-
-        const query = `INSERT INTO resume_downloads (user_id , resume_id
-            ) VALUES ($1 , $2) RETURNING*`
-
-
-        const result = await pool.query(query,
-            [
-                user_id ? user_id : null,
-                resume_id? resume_id : null,
-               
-            ]);
-
-
-        if (result.rows[0]) {
-            res.status(201).json({
-                message: "Downloads saved in database",
-                status: true,
-                result: result.rows[0]
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.downloadsByYear = async (req, res) => {
-    const client = await pool.connect();
-    let year = req.query.year;
-    if(!year){
-        return(
-            res.json({
-                message: "year must be provided",
-                status :false
-            })
-        )
-    }
-    year = parseInt(year)
-    try {
-        const query = {
-            text: `SELECT *,
-                  to_char(downloaded_at,'MM') AS month
-                  FROM resume_downloads
-                  WHERE date_part('year', downloaded_at) = $1;`,
-            values: [year],
-          };
-        const result = await pool.query(query);
-
-        const output = {};
-        let count =0;
-        result.rows.forEach(row => {
-          const month = row.month;
-          if (!output[month]) {
-            output[month] = [];
-          }
-          output[month].push(row);
-          console.log(output[month].length)
-    
+        console.log("Exit addResumes")
+        return res.status(200).json({
+            status: true,
+            message: "resume added",
+            results: savedResumes.rows[0]
         });
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
+exports.updateResumes = async (req, res) => {
+    console.log("Enter updateResumes")
+    console.log("1")
+    try {
+        const { resume_id, skills, objective, personal_info, languages, work_experience, educations } = req.body;
+        console.log(resume_id)
+        if (!resume_id) {
+            return res.status(401).json({
+                status: false,
+                message: "resume_id is required"
+            });
+        }
+        console.log("4")
+        if (skills || objective || personal_info || languages || work_experience || educations) {
+
+        }
+        else {
+            return res.status(401).json({
+                status: false,
+                message: "atleast 1 of them should be provided skills, objective, personal_info, languages, work_experience, educations"
+            });
+        }
+        console.log("5")
+        // SETTING UP QUERY TO UPDATE DATA IN DB IF FLUENCY IS NOT GIVEN
+        let query = 'UPDATE resumes SET ';
+        let index = 2
+        let values = [resume_id]
+
+        // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
+        if (skills) {
+            // SETTING UP TITLE IN QUERY
+            query += `skills = array_append(skills, $${index}), `;
+            values.push(skills)
+            index++
+        }
+
+        if (objective) {
+            // SETTING UP TITLE IN QUERY
+            query += `objective = $${index} , `;
+            values.push(objective)
+            index++
+
+        }
+        if (personal_info) {
+            // SETTING UP TITLE IN QUERY
+            query += `personal_info = $${index} , `;
+            values.push(personal_info)
+            index++
+        }
+        if (languages) {
+            // SETTING UP TITLE IN QUERY
+            query += `languages = array_append(languages, $${index}) , `;
+            values.push(languages)
+            index++
+        }
+        if (work_experience) {
+            // SETTING UP TITLE IN QUERY
+            query += `work_experience = array_append(work_experience, $${index}) , `;
+            values.push(work_experience)
+            index++
+        }
+        if (educations) {
+            // SETTING UP TITLE IN QUERY
+            query += `educations = array_append(educations, $${index}) , `;
+            values.push(educations)
+            index++
+        }
+        // FINALIZING QUERY
+        query += 'WHERE resumes_id = $1 RETURNING *'
+        query = query.replace(/,\s+WHERE/g, " WHERE");
+
+        const educationUpdated = await pool.query(query, values);
+        console.log("6")
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Resume not updated sucessfully",
+            });
+        }
+        console.log("Exit updateResumes")
+        res.status(200).json({
+            status: true,
+            message: "Data Updated",
+            results: educationUpdated.rows[0]
+        });
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
+exports.deleteResumes = async (req, res) => {
+    const db = await pool.connect();
+    try {
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.getAllResumes = async (req, res) => {
+    const db = await pool.connect();
+    try {
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+        });
+    }
+}
+exports.getUserResumes = async (req, res) => {
+    try {
+        // DESTRUCTURING DATA FROM REQUEST QUERY
+        const { user_id } = req.query;
+        console.log(user_id)
+        // CHECKING IF THE DATA IS RECIEVED
+        if (!user_id) {
+            return res.status(404).json({
+                status: false,
+                message: "User id must be provided"
+            });
+        }
+
+        // SETTING UP QUERY TO GET THE REQUIRED RESUME
+        const query = 'SELECT * FROM resumes WHERE user_id = $1';
+
+        // FETCHING RESUME FROM DB
+        const resume = await pool.query(query, [user_id]);
+        // CHECKING IF THE RESUME IS NOT FETECHED THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!resume.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "Resume with this id does not exsists"
+            });
+        }
+        console.log("resume");
+        // CHECKING IF RESUME HAS SKILLS ARRAY THEN FETECHING DATA FOR EACH SKILL ID
+        await Promise.all(resume.rows.map(async (resumes, index) => {
+            console.log(resumes)
+            if(resumes.resume_template_id){
+                const resumeQuery = 'SELECT * FROM templates WHERE template_id = $1'
+                const resumeData = await pool.query(resumeQuery, [resumes.resume_template_id]);
+                if(resumeData.rows[0]){
+                    resume.rows[index].resume_template_id = resumeData.rows[0];
+                }
+            }
+            console.log("1");
+            if(resumes.skills){
+                if (resumes.skills.length > 0) {
+                    const skillsQuery = 'SELECT * FROM skills WHERE skill_id IN (SELECT UNNEST($1::int[]))'
+                    const skillsData = await pool.query(skillsQuery, [resumes.skills]);
+                    if (skillsData.rows[0]) {   
+                        resume.rows[index].skills = skillsData.rows;
+                    }
+                }
+            }
+            console.log("2");
+            // CHECKING IF RESUME HAS languages ARRAY THEN FETECHING DATA FOR EACH languages ID
+            if(resumes.languages){
+                if (resumes.languages.length > 0) {
+                    const languagesQuery = 'SELECT * FROM languages WHERE language_id IN (SELECT UNNEST($1::int[]))'
+                    const languagesData = await pool.query(languagesQuery, [resumes.languages]);
         
-
-        let sum = 0;
-
-        for (const month in output) {
-          const records =output[month];
-          const count = records.length;
-          sum += count;
-        }
+                    if (languagesData.rows[0]) {
+                        resume.rows[index].languages = languagesData.rows;
+                    }
+                }
+            }
+            console.log("3");
+            // CHECKING IF RESUME HAS work_experience ARRAY THEN FETECHING DATA FOR EACH work_experience ID
+            if(resumes.work_experience){
+                if (resumes.work_experience.length > 0) {
+                    const work_experienceQuery = 'SELECT * FROM workExperience WHERE work_experience_id IN (SELECT UNNEST($1::int[]))'
+                    const work_experienceData = await pool.query(work_experienceQuery, [resumes.work_experience]);
         
-        console.log(`Total count: ${sum}`);
+                    if (work_experienceData.rows[0]) {
+                        resume.rows[index].work_experience = work_experienceData.rows;
+                    }
+                }
+            }
+            console.log("4");
+            // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
+            if(resumes.educations){
+                if (resumes.educations.length > 0) {
+                    const educationsQuery = 'SELECT * FROM educations WHERE education_id IN (SELECT UNNEST($1::int[]))'
+                    const educationsData = await pool.query(educationsQuery, [resumes.educations]);
         
-
-    
-
-        if (output) {
-            res.status(201).json({
-                message: "Fetch all records",
-                status: true,
-                total_counts_of_year : sum ,
-                result: output
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
+                    if (educationsData.rows[0]) {
+                        resume.rows[index].educations = educationsData.rows;
+                    }
+                }
+            }
+            console.log("5");
+            // CHECKING IF RESUME HAS objective THEN FETECHING DATA FOR OBJECTIVE ID
+            if(resumes.objective){
+                if (resumes.objective !== null) {
+                    const objectiveQuery = 'SELECT * FROM objectives WHERE objective_id = $1'
+                    const objectiveData = await pool.query(objectiveQuery, [resumes.objective]);
+        
+                    if (objectiveData.rows[0]) {
+                        resume.rows[index].objective = objectiveData.rows[0];
+                    }
+                }
+            }
+            console.log("6");
+            // CHECKING IF RESUME HAS personal_info THEN FETECHING DATA FOR personal_info ID
+            if(resumes.personal_info){
+                if (resumes.personal_info !== null) {
+                    const personal_infoQuery = 'SELECT * FROM personal_info WHERE personal_info_id = $1'
+                    const personal_infoData = await pool.query(personal_infoQuery, [resumes.personal_info]);
+        
+                    if (personal_infoData.rows[0]) {
+                        resume.rows[index].personal_info = personal_infoData.rows[0];
+                    }
+                    
+                }
+            }
+            console.log("7");
+        }))
+        console.log(resume.rows)
+        // console.log(resume.rows)
+        res.status(200).json({
+            status: true,
+            message: "Resume found",
+            results: resume.rows
+        });
+    } catch (err) {
+        return res.status(500).json({
             status: false,
+            message: "Internal server error",
             error: err.message
-        })
+        });
     }
-    finally {
-        client.release();
-    }
-
 }
-
-exports.downloadsByMonth = async (req, res) => {
-    const client = await pool.connect();
-    let year = req.query.year;
-    const month = req.query.month;
-
-    if(!year || !month){
-        return(
-            res.json({
-                message: "year and month must be provided",
-                status :false
-            })
-        )
-    }
-    year = parseInt(year)
-
-
-    try {
-        const query = {
-            text: `SELECT *,
-                  to_char(downloaded_at,'MM') AS month
-                  FROM resume_downloads
-                  WHERE date_part('year', downloaded_at) = $1 AND date_part('month', downloaded_at) = $2;`,
-            values: [year , month],
-          };
-
-        const result = await pool.query(query);
-
-        if (result.rows) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                count : result.rows.length,
-                result: result.rows
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.downloadsByWeek = async (req, res) => {
-    const client = await pool.connect();
-    let year = req.query.year;
-    let month = req.query.month;
-    let week = req.query.week;
-
-    if(!year ||  !week){
-        return(
-            res.json({
-                message: "year, week must be provided",
-                status :false
-            })
-        )
-    }
-    year = parseInt(year);
-    month = parseInt(month);
-    week = parseInt(week)
-
-
+exports.getResumesById = async (req, res) => {
+    // CONNECTING TO DB
+    const db = await pool.connect();
     try {
 
-  // Construct the SQL query to fetch the records for the given week
-  const query = `SELECT * FROM resume_downloads
-  WHERE extract(week from date_trunc('week', downloaded_at)) = $1 AND extract(year from date_trunc('year', downloaded_at)) = $2;`;
+        // DESTRUCTURING DATA FROM REQUEST QUERY
+        const { resume_id } = req.query;
 
-
-        const result = await pool.query(query , [week , year]);
-
-        if (result.rows) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                count : result.rows.length,
-                result: result.rows
-            })
+        // CHECKING IF THE DATA IS RECIEVED
+        if (!resume_id) {
+            return res.status(404).json({
+                status: false,
+                message: "Resume id must be provided"
+            });
         }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
+
+        // SETTING UP QUERY TO GET THE REQUIRED RESUME
+        const query = 'SELECT * FROM resumes WHERE resumes_id = $1';
+
+        // FETCHING RESUME FROM DB
+        const resume = await db.query(query, [resume_id]);
+
+        // CHECKING IF THE RESUME IS NOT FETECHED THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!resume.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "Resume with this id does not exsists"
+            });
         }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
+
+        // CHECKING IF RESUME HAS SKILLS ARRAY THEN FETECHING DATA FOR EACH SKILL ID
+        if (resume.rows[0].skills.length > 0) {
+            const skillsQuery = 'SELECT * FROM skills WHERE skill_id IN (SELECT UNNEST($1::int[]))'
+            const skillsData = await db.query(skillsQuery, [resume.rows[0].skills]);
+
+            if (skillsData.rows[0]) {
+                resume.rows[0].skills = skillsData.rows;
+            }
+        }
+
+        // CHECKING IF RESUME HAS languages ARRAY THEN FETECHING DATA FOR EACH languages ID
+        if (resume.rows[0].languages.length > 0) {
+            const languagesQuery = 'SELECT * FROM languages WHERE language_id IN (SELECT UNNEST($1::int[]))'
+            const languagesData = await db.query(languagesQuery, [resume.rows[0].languages]);
+
+            if (languagesData.rows[0]) {
+                resume.rows[0].languages = languagesData.rows;
+            }
+        }
+
+        // CHECKING IF RESUME HAS work_experience ARRAY THEN FETECHING DATA FOR EACH work_experience ID
+        if (resume.rows[0].work_experience.length > 0) {
+            const work_experienceQuery = 'SELECT * FROM workExperience WHERE work_experience_id IN (SELECT UNNEST($1::int[]))'
+            const work_experienceData = await db.query(work_experienceQuery, [resume.rows[0].work_experience]);
+
+            if (work_experienceData.rows[0]) {
+                resume.rows[0].work_experience = work_experienceData.rows;
+            }
+        }
+
+        // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
+        if (resume.rows[0].educations.length > 0) {
+            const educationsQuery = 'SELECT * FROM educations WHERE education_id IN (SELECT UNNEST($1::int[]))'
+            const educationsData = await db.query(educationsQuery, [resume.rows[0].educations]);
+
+            if (educationsData.rows[0]) {
+                resume.rows[0].educations = educationsData.rows;
+            }
+        }
+
+        // CHECKING IF RESUME HAS objective THEN FETECHING DATA FOR OBJECTIVE ID
+        if (resume.rows[0].objective !== null) {
+            const objectiveQuery = 'SELECT * FROM objectives WHERE objective_id = $1'
+            const objectiveData = await db.query(objectiveQuery, [resume.rows[0].objective]);
+
+            if (objectiveData.rows[0]) {
+                resume.rows[0].objective = objectiveData.rows[0];
+            }
+        }
+
+        // CHECKING IF RESUME HAS personal_info THEN FETECHING DATA FOR personal_info ID
+        if (resume.rows[0].personal_info !== null) {
+            const personal_infoQuery = 'SELECT * FROM personal_info WHERE personal_info_id = $1'
+            const personal_infoData = await db.query(personal_infoQuery, [resume.rows[0].personal_info]);
+
+            if (personal_infoData.rows[0]) {
+                resume.rows[0].personal_info = personal_infoData.rows[0];
+            }
+        }
+        res.status(200).json({
             status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
-}
-
-
-exports.byRegisteredUsers = async (req,res)=>{
-    const client = await pool.connect();
-    try {
-
-  // Construct the SQL query to fetch the records for the given week
-  const query = `SELECT user_id, COUNT(*) AS resume_download_count, array_agg(row_to_json(resume_downloads)) AS resume_downloads
-  FROM (
-    SELECT resume_id, downloaded_at, user_id, download_id
-    FROM resume_downloads
-  ) resume_downloads
-  GROUP BY user_id;
-  `;
-
-
-  const result = await pool.query(query);
-
-        if (result.rows) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
+            message: "Resume found",
+            results: resume.rows[0]
+        });
+    } catch (err) {
+        return res.status(500).json({
             status: false,
+            message: "Internal server error",
             error: err.message
-        })
+        });
     }
-    finally {
-        client.release();
-    }
-
-}
-
-exports.by_days = async (req,res)=>{
-    const client = await pool.connect();
-    try {
-
-        const date = req.query.date;
-
-        if(!date){
-            return(
-                res.json({
-                    message: "date must be provided",
-                    status :false
-                })
-            )
-        }
-  // Construct the SQL query to fetch the records for the given week
-  const query = `SELECT user_id,COUNT(*) AS resume_download_count, array_agg(row_to_json(resume_downloads)) AS resume_downloads
-  FROM (
-    SELECT resume_id, downloaded_at, user_id, download_id
-    FROM resume_downloads
-    WHERE downloaded_at::date = $1::date
-  ) resume_downloads
- 
-  GROUP BY user_id;`;
-
-  const result = await pool.query(query , [date]);
-
-        if (result.rows) {
-            res.status(201).json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
-            res.status(400).json({
-                message: "Could not save",
-                status: false
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.json({
-            message: "Error",
-            status: false,
-            error: err.message
-        })
-    }
-    finally {
-        client.release();
-    }
-
 }

@@ -1,15 +1,12 @@
-const express = require('express');
-
-const router = express.Router();
+const express = require("express");
 const controller = require("../../controllers/Main/educationController")
+const educationRouter = express.Router();
 
-router.post("/addEducation" , controller.addeducations);
-router.put("/updateEducation" , controller.updateeducation);
-router.delete("/deleteEducation" , controller.deleteeducation);
-router.get("/getAlleducationsOfUser" , controller.getAlleducationsOfUser);
-router.get("/getAllEducations" , controller.getAlleducations);
+educationRouter.post("/add-education", controller.addEducation);
+educationRouter.put("/update-education" ,controller.updateEducation);
+educationRouter.delete("/delete-education", controller.deleteEducation);
+educationRouter.get("/get-all-education");
+educationRouter.get("/get-user-education", controller.getUserEducation);
+educationRouter.get("/get-education-by-id");
 
-router.get("/getEducationById" , controller.geteducationById);
-
-
-module.exports = router;
+module.exports = educationRouter;

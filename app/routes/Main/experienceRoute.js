@@ -1,15 +1,12 @@
-const express = require('express');
-
-const router = express.Router();
+const express = require("express");
 const controller = require("../../controllers/Main/experienceController")
+const workExperienceRouter = express.Router();
 
-router.post("/addExperience" , controller.addexperiences);
-router.put("/updateExperience" , controller.updateexperience);
-router.delete("/deleteExperience" , controller.deleteexperience);
-router.get("/getAllExperiences" , controller.getAllexperiences);
-router.get("/getExperienceById" , controller.getexperienceById);
-router.get("/getAlluserAddedExperiences" , controller.getExperiencesByuser_id);
+workExperienceRouter.post("/add-work-experience", controller.addWorkExperience);
+workExperienceRouter.put("/edit-objective");
+workExperienceRouter.delete("/delete-objective");
+workExperienceRouter.get("/get-all-workExperience");
+workExperienceRouter.get("/get-user-workExperience", controller.getUserWorkExperience);
+workExperienceRouter.get("/get-workExperience-by-id");
 
-
-
-module.exports = router;
+module.exports = workExperienceRouter;
