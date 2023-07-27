@@ -171,7 +171,14 @@ exports.forgetPassword = async (req, res) => {
                 message: "Email is required"
             });
         }
-
+        const userCheckQuery = 'SELECT * FROM users WHERE email = $1'
+        const findUSer = await pool.query(userCheckQuery, [email]);
+        if(findUSer.rowCount < 1){
+            return res.status(401).json({
+                status: false,
+                message: "Invalid Email Address"
+            });
+        }
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
         const query = 'SELECT * FROM otpStored WHERE email = $1';
         const checkEmail = pool.query(query, [email]);
@@ -265,6 +272,54 @@ exports.otpVerification = async (req,res)=>{
             message:"Code Verified Sucessfully"
         })
     } catch (err) {
-        
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
+    }
+}
+exports.resetPassword =async(req,res)=>{
+    const {otp_id, password } = req.body;
+    try {
+        if(!otp_id || !password){
+            return res.json({
+                status:false,
+                message:"Otp id, password and email are required"
+            })
+        }
+        const query = 'SELECT * FROM otpStored WHERE otp_id = $1'
+        const getOtpUser = await pool.query(query,[otp_id]);
+        if(getOtpUser.rowCount < 1){
+            return res.json({
+                status:false,
+                message:"The request can not be completed because otp could not be verified"
+            })
+        }
+        const query1 = 'UPDATE users SET password = $1  WHERE email = $2 RETURNING *'
+        const updatePassword = await pool.query(query1, [password, getOtpUser.rows[0].email])
+        if(updatePassword.rowCount < 1){
+            return res.json({
+                status:false,
+                message:"Unable to update the password because email was not found"
+            })
+        }
+        const deleteEntry = 'DELETE FROM otpStored WHERE otp_id = $1';
+        const deletedOtp = await pool.query(deleteEntry, [otp_id]);
+        if(deletedOtp.rowCount < 1){
+            return res.json({
+                status:false,
+                message:"The otp entry was not deleted because otp_id was not found"
+            })
+        }
+        res.json({
+            status:true,
+            message:"Password Updated sucessfully",
+            results: updatePassword.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
     }
 }
