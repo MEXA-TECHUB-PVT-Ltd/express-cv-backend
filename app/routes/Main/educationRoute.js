@@ -7,6 +7,7 @@ educationRouter.put("/update-education" ,controller.updateEducation);
 educationRouter.delete("/delete-education", controller.deleteEducation);
 educationRouter.get("/get-all-education");
 educationRouter.get("/get-user-education", controller.getUserEducation);
+educationRouter.put("/add-user-education", controller.addUserEducation);
 educationRouter.get("/get-education-by-id");
 
 module.exports = educationRouter;

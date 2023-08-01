@@ -7,6 +7,7 @@ workExperienceRouter.put("/edit-objective");
 workExperienceRouter.delete("/delete-objective");
 workExperienceRouter.get("/get-all-workExperience");
 workExperienceRouter.get("/get-user-workExperience", controller.getUserWorkExperience);
+workExperienceRouter.put("/add-user-workExperience", controller.addUserExperience);
 workExperienceRouter.get("/get-workExperience-by-id");
 
 module.exports = workExperienceRouter;

@@ -6,6 +6,7 @@ const fs= require('fs')
 // Define storage for hairStyles images
 const hairStylesStorage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log(req.file)
      if(req.body.image_type === 'user_profile_image'){
       const dir = './user_profile_images/';
 
