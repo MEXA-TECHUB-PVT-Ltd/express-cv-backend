@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
   user_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   user_name TEXT  ,
   email TEXT UNIQUE NOT NULL ,
+  phone Number ,
+  profile_img TEXT ,
+  education INT[],
+  experience INT[],
   password TEXT NOT NULL ,
   block BOOLEAN DEFAULT false
 );
@@ -71,4 +75,19 @@ CREATE TABLE IF NOT EXISTS otpStored(
   otp_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY ,
   email  TEXT ,
   otp TEXT 
+);
+CREATE TABLE IF NOT EXISTS terms_and_condtions(
+  terms_and_condition_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  TEXT TEXT,
+  status TEXT DEFAULT 'inactive',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS privacy_policy(
+  privacy_policy_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  TEXT TEXT,
+  status TEXT DEFAULT 'inactive',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );

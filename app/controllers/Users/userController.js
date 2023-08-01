@@ -143,13 +143,38 @@ exports.getUserData = async (req, res) => {
         }
         const query = 'SELECT * FROM users WHERE user_id = $1';
         const userData = await pool.query(query, [current_user_id]);
-        console.log(userData)
+        
         if (!userData.rows[0]) {
             return res.status(401).json({
                 status: false,
                 message: "User Does not exsists"
             });
         }
+        await Promise.all(userData.rows.map(async (userDat, index) => {
+            // CHECKING IF RESUME HAS work_experience ARRAY THEN FETECHING DATA FOR EACH work_experience ID
+            if(userDat.experience){
+                if (userDat.experience.length > 0) {
+                    const work_experienceQuery = 'SELECT * FROM workExperience WHERE work_experience_id IN (SELECT UNNEST($1::int[]))'
+                    const work_experienceData = await pool.query(work_experienceQuery, [userDat.experience]);
+                    
+                    if (work_experienceData.rows[0]) {
+                        userData.rows[index].experience = work_experienceData.rows;
+                    }
+                }
+            }
+            console.log("4");
+            // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
+            if(userDat.education){
+                if (userDat.education.length > 0) {
+                    const educationsQuery = 'SELECT * FROM educations WHERE education_id IN (SELECT UNNEST($1::int[]))'
+                    const educationsData = await pool.query(educationsQuery, [userDat.education]);
+                    console.log(educationsData)
+                    if (educationsData.rows[0]) {
+                        userData.rows[index].education = educationsData.rows;
+                    }
+                }
+            }
+        }))
         res.json({
             status: true,
             message: "Data Fetched sucessfully",
@@ -158,7 +183,7 @@ exports.getUserData = async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             status: false,
-            message: "Internal server error"
+            message: err.message
         });
     }
 }
@@ -173,7 +198,7 @@ exports.forgetPassword = async (req, res) => {
         }
         const userCheckQuery = 'SELECT * FROM users WHERE email = $1'
         const findUSer = await pool.query(userCheckQuery, [email]);
-        if(findUSer.rowCount < 1){
+        if (findUSer.rowCount < 1) {
             return res.status(401).json({
                 status: false,
                 message: "Invalid Email Address"
@@ -238,38 +263,38 @@ exports.forgetPassword = async (req, res) => {
         })
 
     } catch (err) {
-        return res.status(500).json({
+        return res.json({
             status: false,
             message: err.message
         });
     }
 }
-exports.otpVerification = async (req,res)=>{
-    const {otp, otp_id}=req.query;
+exports.otpVerification = async (req, res) => {
+    const { otp, otp_id } = req.query;
     try {
-        if(!otp || !otp_id){
+        if (!otp || !otp_id) {
             return res.json({
-                status:false,
-                message:"OTP and otp_id is required"
+                status: false,
+                message: "OTP and otp_id is required"
             })
         }
         const query = 'SELECT * FROM otpStored WHERE otp_id = $1'
         const findOtp = await pool.query(query, [otp_id]);
-        if(findOtp.rowCount < 1){
+        if (findOtp.rowCount < 1) {
             return res.json({
-                status:false,
-                message:"Invalid OTP Id"
+                status: false,
+                message: "Invalid OTP Id"
             })
         }
-        if(findOtp.rows[0].otp !== otp){
+        if (findOtp.rows[0].otp !== otp) {
             return res.json({
-                status:false,
-                message:"Invalid OTP"
+                status: false,
+                message: "Invalid OTP"
             })
         }
         return res.json({
-            status:true,
-            message:"Code Verified Sucessfully"
+            status: true,
+            message: "Code Verified Sucessfully"
         })
     } catch (err) {
         return res.status(500).json({
@@ -278,42 +303,42 @@ exports.otpVerification = async (req,res)=>{
         });
     }
 }
-exports.resetPassword =async(req,res)=>{
-    const {otp_id, password } = req.body;
+exports.resetPassword = async (req, res) => {
+    const { otp_id, password } = req.body;
     try {
-        if(!otp_id || !password){
+        if (!otp_id || !password) {
             return res.json({
-                status:false,
-                message:"Otp id, password and email are required"
+                status: false,
+                message: "Otp id, password and email are required"
             })
         }
         const query = 'SELECT * FROM otpStored WHERE otp_id = $1'
-        const getOtpUser = await pool.query(query,[otp_id]);
-        if(getOtpUser.rowCount < 1){
+        const getOtpUser = await pool.query(query, [otp_id]);
+        if (getOtpUser.rowCount < 1) {
             return res.json({
-                status:false,
-                message:"The request can not be completed because otp could not be verified"
+                status: false,
+                message: "The request can not be completed because otp could not be verified"
             })
         }
         const query1 = 'UPDATE users SET password = $1  WHERE email = $2 RETURNING *'
         const updatePassword = await pool.query(query1, [password, getOtpUser.rows[0].email])
-        if(updatePassword.rowCount < 1){
+        if (updatePassword.rowCount < 1) {
             return res.json({
-                status:false,
-                message:"Unable to update the password because email was not found"
+                status: false,
+                message: "Unable to update the password because email was not found"
             })
         }
         const deleteEntry = 'DELETE FROM otpStored WHERE otp_id = $1';
         const deletedOtp = await pool.query(deleteEntry, [otp_id]);
-        if(deletedOtp.rowCount < 1){
+        if (deletedOtp.rowCount < 1) {
             return res.json({
-                status:false,
-                message:"The otp entry was not deleted because otp_id was not found"
+                status: false,
+                message: "The otp entry was not deleted because otp_id was not found"
             })
         }
         res.json({
-            status:true,
-            message:"Password Updated sucessfully",
+            status: true,
+            message: "Password Updated sucessfully",
             results: updatePassword.rows[0]
         })
     } catch (err) {
@@ -322,4 +347,137 @@ exports.resetPassword =async(req,res)=>{
             message: err.message
         });
     }
+}
+exports.changePassword = async (req, res) => {
+    const { current_password, new_password, user_id } = req.body;
+    try {
+        if (!current_password || !new_password || !user_id) {
+            return res.json({
+                status: false,
+                message: "current_password, user_id and new_password are required"
+            })
+        }
+        const query = 'SELECT * FROM users WHERE user_id = $1'
+        const getOtpUser = await pool.query(query, [user_id]);
+        if (getOtpUser.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "User with this id was not found"
+            })
+        }
+        const comparePassword = await bcrypt.compare(current_password, getOtpUser.rows[0].password)
+
+        // checking if the password did not match then sending response with status false
+        if (!comparePassword) {
+            return res.status(401).json({
+                status: false,
+                message: "Current password is incorrect"
+            });
+        }
+        const salt = await bcrypt.genSalt(10);
+
+        // password hashing
+        const hashPassword = await bcrypt.hash(new_password, salt);
+        const query1 = 'UPDATE users SET password = $1  WHERE user_id = $2 RETURNING *'
+        const updatePassword = await pool.query(query1, [hashPassword, user_id])
+        if (updatePassword.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "Unable to update the password because user_id was not found"
+            })
+        }
+        res.json({
+            status: true,
+            message: "Password Updated sucessfully",
+            results: updatePassword.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
+    }
+}
+exports.updateUserInfo = async (req, res) => {
+    const { user_name, phone, user_id } = req.query;
+    console.log(user_name, phone, user_id)
+    try {
+        let query;
+        let values = [];
+        if (!user_id) {
+            return res.json({
+                status: false,
+                message: 'User_id is required'
+            })
+        }
+        if (!user_name || !phone) {
+            return res.json({
+                status: false,
+                message: 'User_name or Phone is required to update data'
+            })
+        }
+        
+        if (user_name === '') {
+            return res.json({
+                status: false,
+                message: 'User_name can not be empty'
+            })
+        }
+        if(user_name && phone){
+            console.log('in user and phone')
+            query = 'UPDATE users SET user_name =$2, phone = $3 WHERE user_id = $1 RETURNING *';
+            values=[user_id, user_name, phone]
+        }
+        if(user_name && !phone){
+            console.log('in user')
+            query = 'UPDATE users SET user_name = $2 WHERE user_id = $1 RETURNING *';
+            values=[user_id, user_name]
+        }
+        if(!user_name && phone){
+            console.log('in phone')
+            query = 'UPDATE users SET phone = $2 WHERE user_id = $1 RETURNING *';
+            values=[user_id, phone]
+        }
+        const updatedData = await pool.query(query, values);
+        if(updatedData.rowCount < 1){
+            return res.json({
+                status: false,
+                message: 'User with this User_id does not exsists'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'user updated Sucessfully',
+            results: updatedData.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message
+        });
+    }
+}
+exports.uploadImage = async (req,res)=>{
+    const path = req.file.path;
+    const user_id = req.query.user_id;
+    console.log(path, user_id)
+    if(!path || !user_id){
+        return res.json({
+            status:false,
+            message:"path or user_id not found"
+        })
+    }
+    const query = 'UPDATE users SET profile_img = $1 WHERE user_id = $2 RETURNING *'
+    const updateUserImage = await pool.query(query, [path,user_id]);
+    if(updateUserImage.rowCount < 1){
+        return res.json({
+            status:false,
+            message:"user_id was not found"
+        })
+    }
+    res.json({
+        status: true,
+        message:'Image Uploaded Sucessfully',
+        results: path
+    })
 }

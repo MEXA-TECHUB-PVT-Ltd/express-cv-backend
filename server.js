@@ -20,6 +20,9 @@ app.use("/skills", require("./app/routes/Main/skillRoute"))
 app.use("/workExperience", require("./app/routes/Main/experienceRoute"))
 app.use("/resumeTemplate", require("./app/routes/Main/resumeTemplateRoute"))
 app.use("/blogs", require("./app/routes/Main/blogRoute"))
+app.use("/privacyPolicy", require("./app/routes/Main/privacy_policyRoute"))
+app.use("/terms", require("./app/routes/Main/terms_and_conditionsRoute"))
+app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
 app.listen(process.env.PORT, async () => {
     console.log(`
     ################################################
