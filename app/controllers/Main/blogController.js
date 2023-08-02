@@ -6,7 +6,7 @@ exports.addBlog = async (req, res) => {
     try {
         const title = req.body.title;
         const description = req.body.description;
-        const cover_image = req.body.cover_image;
+        const cover_image = req.file.path;
 
 
         if (!title) {
