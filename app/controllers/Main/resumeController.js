@@ -205,7 +205,7 @@ exports.getUserResumes = async (req, res) => {
                     }
                 }
             }
-            console.log("3");
+
             // CHECKING IF RESUME HAS work_experience ARRAY THEN FETECHING DATA FOR EACH work_experience ID
             if(resumes.work_experience){
                 if (resumes.work_experience.length > 0) {
@@ -217,7 +217,6 @@ exports.getUserResumes = async (req, res) => {
                     }
                 }
             }
-            console.log("4");
             // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
             if(resumes.educations){
                 if (resumes.educations.length > 0) {
@@ -229,7 +228,7 @@ exports.getUserResumes = async (req, res) => {
                     }
                 }
             }
-            console.log("5");
+
             // CHECKING IF RESUME HAS objective THEN FETECHING DATA FOR OBJECTIVE ID
             if(resumes.objective){
                 if (resumes.objective !== null) {
@@ -371,5 +370,33 @@ exports.getResumesById = async (req, res) => {
             message: "Internal server error",
             error: err.message
         });
+    }
+}
+exports.deleteResume = async(req,res)=>{
+    const {resume_id} = req.query; 
+    try {
+        if(!resume_id){
+            return res.json({
+                status:false,
+                message:'Resume_id is required'
+            })
+        }
+        const query = 'DELETE FROM resumes WHERE resumes_id = $1'
+        const deleteResume = await pool.query(query,[resume_id]);
+        if(deleteResume.rowCount < 1){
+            return res.json({
+                status:false,
+                message:'Resume_id is incorrect'
+            })
+        }
+        res.json({
+            status:true,
+            message:'CV Deleted Sucessfully',
+        })
+    } catch (error) {
+        return res.json({
+            status:false,
+            message:error.message
+        })
     }
 }

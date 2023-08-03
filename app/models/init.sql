@@ -91,3 +91,11 @@ CREATE TABLE IF NOT EXISTS privacy_policy(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS blogs(
+  blog_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  cover_image TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
