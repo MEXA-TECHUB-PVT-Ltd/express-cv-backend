@@ -96,6 +96,12 @@ CREATE TABLE IF NOT EXISTS blogs(
   title TEXT,
   description TEXT,
   cover_image TEXT,
+  sub_headings INT[],
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS sub_headings(
+  sub_headings_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  heading TEXT,
+  ddetails TEXT
+)
