@@ -10,6 +10,6 @@ router.put("/updateBlog" , controller.updateBlog);
 router.delete("/deleteBlog" , controller.deleteBlog);
 router.get("/getAllBlogs" , controller.getAllBlogs);
 router.get("/getBlogById" , controller.getBlogById);
-
+router.post("/addSubHeading" , controller.addSubHeadings);
 
 module.exports = router;

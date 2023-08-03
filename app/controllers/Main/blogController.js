@@ -1,4 +1,4 @@
-const {pool} = require("../../config/db.config");
+const { pool } = require("../../config/db.config");
 
 
 exports.addBlog = async (req, res) => {
@@ -18,16 +18,17 @@ exports.addBlog = async (req, res) => {
             )
         }
 
-        
-        const query = 'INSERT INTO blogs (title , description , cover_image) VALUES ($1 , $2 , $3 ) RETURNING*'
-        const result = await pool.query(query , 
+
+        const query = 'INSERT INTO blogs (title , description , cover_image, sub_headings) VALUES ($1 , $2 , $3 , $4) RETURNING*'
+        const result = await pool.query(query,
             [
-                title ? title : null ,
+                title ? title : null,
                 description ? description : null,
-                cover_image? cover_image : null
+                cover_image ? cover_image : null,
+                []
             ]);
 
-            
+
         if (result.rows[0]) {
             res.status(201).json({
                 message: "blog saved in database",
@@ -52,7 +53,7 @@ exports.addBlog = async (req, res) => {
     }
     finally {
         client.release();
-      }
+    }
 
 }
 
@@ -74,29 +75,29 @@ exports.updateBlog = async (req, res) => {
             )
         }
 
-       
+
         let query = 'UPDATE blogs SET ';
         let index = 2;
-        let values =[blog_id];
+        let values = [blog_id];
 
 
 
-        if(title){
-            query+= `title = $${index} , `;
+        if (title) {
+            query += `title = $${index} , `;
             values.push(title)
-            index ++
-        }
-        
-        if(description){
-            query+= `description = $${index} , `;
-            values.push(description)
-            index ++
+            index++
         }
 
-        if(cover_image){
-            query+= `cover_image = $${index} , `;
+        if (description) {
+            query += `description = $${index} , `;
+            values.push(description)
+            index++
+        }
+
+        if (cover_image) {
+            query += `cover_image = $${index} , `;
             values.push(cover_image)
-            index ++
+            index++
         }
 
 
@@ -104,7 +105,7 @@ exports.updateBlog = async (req, res) => {
         query = query.replace(/,\s+WHERE/g, " WHERE");
         console.log(query);
 
-       const result = await pool.query(query , values);
+        const result = await pool.query(query, values);
 
         if (result.rows[0]) {
             res.json({
@@ -130,7 +131,7 @@ exports.updateBlog = async (req, res) => {
     }
     finally {
         client.release();
-      }
+    }
 }
 
 exports.deleteBlog = async (req, res) => {
@@ -146,16 +147,16 @@ exports.deleteBlog = async (req, res) => {
             )
         }
         const query = 'DELETE FROM blogs WHERE blog_id = $1 RETURNING *';
-        const result = await pool.query(query , [blog_id]);
+        const result = await pool.query(query, [blog_id]);
 
-        if(result.rowCount>0){
+        if (result.rowCount > 0) {
             res.status(200).json({
                 message: "Deletion successfull",
                 status: true,
                 deletedRecord: result.rows[0]
             })
         }
-        else{
+        else {
             res.status(404).json({
                 message: "Could not delete . Record With this Id may not found or req.body may be empty",
                 status: false,
@@ -172,7 +173,7 @@ exports.deleteBlog = async (req, res) => {
     }
     finally {
         client.release();
-      }
+    }
 }
 
 exports.getAllBlogs = async (req, res) => {
@@ -181,36 +182,50 @@ exports.getAllBlogs = async (req, res) => {
         let limit = req.query.limit;
         let page = req.query.page
 
-        
+        let result;
         if (!page || !limit) {
             const query = 'SELECT * FROM blogs'
             result = await pool.query(query);
-           
+
         }
 
-        if(page && limit){
+        if (page && limit) {
             limit = parseInt(limit);
-            let offset= (parseInt(page)-1)* limit
+            let offset = (parseInt(page) - 1) * limit
 
-        const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
-        result = await pool.query(query , [limit , offset]);
+            const query = 'SELECT * FROM blogs LIMIT $1 OFFSET $2'
+            result = await pool.query(query, [limit, offset]);
 
-      
+
         }
 
-        if (result.rows) {
-            res.json({
-                message: "Fetched",
-                status: true,
-                result: result.rows
-            })
-        }
-        else {
+        if (result.rowCount < 0) {
             res.json({
                 message: "could not fetch",
                 status: false
             })
         }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+                        
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            console.log(result.rows[index].sub_headings)
+                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        res.json({
+            message: "Fetched",
+            status: true,
+            result: result.rows
+        })
+
     }
     catch (err) {
         res.json({
@@ -221,7 +236,7 @@ exports.getAllBlogs = async (req, res) => {
     }
     finally {
         client.release();
-      }
+    }
 
 }
 
@@ -239,9 +254,9 @@ exports.getBlogById = async (req, res) => {
             )
         }
         const query = 'SELECT * FROM blogs WHERE blog_id = $1'
-        const result = await pool.query(query , [blog_id]);
+        const result = await pool.query(query, [blog_id]);
 
-        if (result.rowCount>0) {
+        if (result.rowCount > 0) {
             res.json({
                 message: "Fetched",
                 status: true,
@@ -257,13 +272,48 @@ exports.getBlogById = async (req, res) => {
     }
     catch (err) {
         res.json({
-            message: "Error",
             status: false,
-            error: err.message
+            message: err.message
         })
     }
     finally {
         client.release();
-      }
+    }
 
+}
+exports.addSubHeadings = async (req, res) => {
+    const { heading, details, blog_id } = req.body;
+    try {
+        if (!heading || !details || !blog_id) {
+            return res.json({
+                status: false,
+                message: "Heading, Details and blog_id is required"
+            })
+        }
+        const query = 'INSERT INTO sub_headings (heading,ddetails) VALUES ($1, $2) RETURNING *';
+        const postSUbHeading = await pool.query(query, [heading, details]);
+        if (postSUbHeading.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "Sub Heading was not added sucessfully"
+            })
+        }
+        const insertInBlogQuery = 'UPDATE blogs SET sub_headings = array_append(sub_headings, $1) WHERE blog_id = $2 RETURNING *;';
+        const insertInBlog = await pool.query(insertInBlogQuery, [postSUbHeading.rows[0].sub_headings_id, blog_id]);
+        if (insertInBlog.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "Sub Heading was added but id was not inserted in blog sucessfully"
+            })
+        }
+        res.json({
+            status: true,
+            message: "Sub Heading was added sucessfully"
+        })
+    } catch (error) {
+        res.json({
+            status: false,
+            message: error.message
+        })
+    }
 }
