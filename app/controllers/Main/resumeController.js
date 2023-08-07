@@ -1,7 +1,6 @@
 const { query } = require("express");
 const { pool } = require("../../config/db.config");
 exports.addResumes = async (req, res) => {
-    console.log("Enter addResumes")
     try {
         const { resume_template_id, user_id } = req.body;
         if (!user_id || !resume_template_id) {
@@ -18,7 +17,6 @@ exports.addResumes = async (req, res) => {
                 message: "Resume not added due to issue while saving in db"
             });
         }
-        console.log("Exit addResumes")
         return res.status(200).json({
             status: true,
             message: "resume added",
@@ -33,18 +31,14 @@ exports.addResumes = async (req, res) => {
     }
 }
 exports.updateResumes = async (req, res) => {
-    console.log("Enter updateResumes")
-    console.log("1")
     try {
         const { resume_id, skills, objective, personal_info, languages, work_experience, educations } = req.body;
-        console.log(resume_id)
         if (!resume_id) {
             return res.status(401).json({
                 status: false,
                 message: "resume_id is required"
             });
         }
-        console.log("4")
         if (skills || objective || personal_info || languages || work_experience || educations) {
 
         }
@@ -54,7 +48,6 @@ exports.updateResumes = async (req, res) => {
                 message: "atleast 1 of them should be provided skills, objective, personal_info, languages, work_experience, educations"
             });
         }
-        console.log("5")
         // SETTING UP QUERY TO UPDATE DATA IN DB IF FLUENCY IS NOT GIVEN
         let query = 'UPDATE resumes SET ';
         let index = 2
@@ -104,14 +97,12 @@ exports.updateResumes = async (req, res) => {
         query = query.replace(/,\s+WHERE/g, " WHERE");
 
         const educationUpdated = await pool.query(query, values);
-        console.log("6")
         if (!educationUpdated.rows[0]) {
             return res.status(401).json({
                 status: false,
                 message: "Resume not updated sucessfully",
             });
         }
-        console.log("Exit updateResumes")
         res.status(200).json({
             status: true,
             message: "Data Updated",
@@ -151,7 +142,6 @@ exports.getUserResumes = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM REQUEST QUERY
         const { user_id } = req.query;
-        console.log(user_id)
         // CHECKING IF THE DATA IS RECIEVED
         if (!user_id) {
             return res.status(404).json({
@@ -172,10 +162,8 @@ exports.getUserResumes = async (req, res) => {
                 message: "Resume with this id does not exsists"
             });
         }
-        console.log("resume");
         // CHECKING IF RESUME HAS SKILLS ARRAY THEN FETECHING DATA FOR EACH SKILL ID
         await Promise.all(resume.rows.map(async (resumes, index) => {
-            console.log(resumes)
             if(resumes.resume_template_id){
                 const resumeQuery = 'SELECT * FROM templates WHERE template_id = $1'
                 const resumeData = await pool.query(resumeQuery, [resumes.resume_template_id]);
@@ -183,7 +171,6 @@ exports.getUserResumes = async (req, res) => {
                     resume.rows[index].resume_template_id = resumeData.rows[0];
                 }
             }
-            console.log("1");
             if(resumes.skills){
                 if (resumes.skills.length > 0) {
                     const skillsQuery = 'SELECT * FROM skills WHERE skill_id IN (SELECT UNNEST($1::int[]))'
@@ -193,7 +180,6 @@ exports.getUserResumes = async (req, res) => {
                     }
                 }
             }
-            console.log("2");
             // CHECKING IF RESUME HAS languages ARRAY THEN FETECHING DATA FOR EACH languages ID
             if(resumes.languages){
                 if (resumes.languages.length > 0) {
@@ -240,7 +226,6 @@ exports.getUserResumes = async (req, res) => {
                     }
                 }
             }
-            console.log("6");
             // CHECKING IF RESUME HAS personal_info THEN FETECHING DATA FOR personal_info ID
             if(resumes.personal_info){
                 if (resumes.personal_info !== null) {
@@ -253,10 +238,7 @@ exports.getUserResumes = async (req, res) => {
                     
                 }
             }
-            console.log("7");
         }))
-        console.log(resume.rows)
-        // console.log(resume.rows)
         res.status(200).json({
             status: true,
             message: "Resume found",

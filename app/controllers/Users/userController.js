@@ -20,7 +20,6 @@ exports.createUser = async (req, res) => {
         // destructure from request body
 
         const { user_name, email, password } = req.body;
-        console.log(user_name, email, password)
         // setting up query to insert new user in db
         if (!user_name || !email || !password) {
             return res.status(401).json({
@@ -54,11 +53,9 @@ exports.createUser = async (req, res) => {
             email,
             hashPassword
         ]);
-        console.log(addUser)
         // if data is saved response sent with status true
         if (addUser.rows) {
             const token = jwt.sign({ id: addUser.rows[0].user_id }, process.env.TOKEN);
-            console.log(token)
             res.status(200).json({
                 status: true,
                 findUsers: addUser.rows[0],
@@ -162,13 +159,11 @@ exports.getUserData = async (req, res) => {
                     }
                 }
             }
-            console.log("4");
             // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
             if(userDat.education){
                 if (userDat.education.length > 0) {
                     const educationsQuery = 'SELECT * FROM educations WHERE education_id IN (SELECT UNNEST($1::int[]))'
                     const educationsData = await pool.query(educationsQuery, [userDat.education]);
-                    console.log(educationsData)
                     if (educationsData.rows[0]) {
                         userData.rows[index].education = educationsData.rows;
                     }
@@ -400,7 +395,6 @@ exports.changePassword = async (req, res) => {
 }
 exports.updateUserInfo = async (req, res) => {
     const { user_name, phone, user_id } = req.query;
-    console.log(user_name, phone, user_id)
     try {
         let query;
         let values = [];
@@ -424,17 +418,14 @@ exports.updateUserInfo = async (req, res) => {
             })
         }
         if(user_name && phone){
-            console.log('in user and phone')
             query = 'UPDATE users SET user_name =$2, phone = $3 WHERE user_id = $1 RETURNING *';
             values=[user_id, user_name, phone]
         }
         if(user_name && !phone){
-            console.log('in user')
             query = 'UPDATE users SET user_name = $2 WHERE user_id = $1 RETURNING *';
             values=[user_id, user_name]
         }
         if(!user_name && phone){
-            console.log('in phone')
             query = 'UPDATE users SET phone = $2 WHERE user_id = $1 RETURNING *';
             values=[user_id, phone]
         }
@@ -460,7 +451,6 @@ exports.updateUserInfo = async (req, res) => {
 exports.uploadImage = async (req,res)=>{
     const path = req.file.path;
     const user_id = req.query.user_id;
-    console.log(path, user_id)
     if(!path || !user_id){
         return res.json({
             status:false,

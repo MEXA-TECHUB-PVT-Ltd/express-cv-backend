@@ -25,7 +25,6 @@ exports.addFaq = async(req,res)=>{
          }
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -63,7 +62,6 @@ exports.getAllFaqs = async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -100,7 +98,6 @@ exports.viewFaq = async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -142,7 +139,6 @@ exports.updateFaq= async(req,res)=>{
 
         query += 'WHERE faq_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
 
        const result = await pool.query(query , values);
 
@@ -164,7 +160,6 @@ exports.updateFaq= async(req,res)=>{
     }
 }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -206,7 +201,6 @@ exports.DeleteFaq= async(req,res)=>{
     }
 
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,

@@ -1,7 +1,5 @@
 const { pool } = require("../../config/db.config");
 exports.addSkill = async (req, res) => {
-    console.log("Enter addSkill")
-    console.log("1")
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { skill, level, user_id } = req.body;
@@ -31,7 +29,6 @@ exports.addSkill = async (req, res) => {
         }
 
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
-        console.log("Exit addSkill")
         res.status(200).json({
             status: true,
             message: "Skill added sucessfully",

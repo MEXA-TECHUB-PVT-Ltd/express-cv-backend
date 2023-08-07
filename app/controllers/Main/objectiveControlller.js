@@ -6,7 +6,6 @@ exports.addObjective = async (req, res) => {
 
         // DESTRUCTURE FROM REQUEST BODY
         const { objective, user_id } = req.body;
-        console.log(objective, user_id)
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!objective || !user_id) {
             return res.status(401).json({
@@ -17,16 +16,12 @@ exports.addObjective = async (req, res) => {
 
         // SETTING QUERY TO FIND IF THE OBJECTIVE ALREADY EXSISTS OF THE SAME USER
         const findObjextQuery = 'SELECT * FROM objectives WHERE user_id = $1';
-        console.log(objective, user_id)
         // SEARCHING FOR THE OBJECTIVE IN DB USING QUERY ABOVE
         const findObjective = await pool.query(findObjextQuery, [user_id]);
-        console.log(objective, user_id)
         // CHECKING IF THE OBJECTIVE EXSISTS THEN PERFORM UPDATE
         if (findObjective.rows[0]) {
-            console.log(objective, user_id)
             // SETTING UP QUERY TO UPDATE THE OBJECTIVE
             const query = 'UPDATE objectives SET objective = $1 WHERE user_id = $2 RETURNING *';
-            console.log(objective, user_id)
             // UPDATING THE DATA USING QUERY ABOVE
             const savedObjective = await pool.query(query, [objective, user_id]);
 
@@ -45,7 +40,6 @@ exports.addObjective = async (req, res) => {
                 results: savedObjective.rows[0]
             })
         }
-        console.log(objective, user_id)
         // SETTING UP QUERY TO ADD THE OBJECTIVE
         const query = 'INSERT INTO objectives (objective, user_id) VALUES ($1, $2) RETURNING *';
 

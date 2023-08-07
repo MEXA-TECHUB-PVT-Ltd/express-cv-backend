@@ -23,7 +23,6 @@ exports.add_aboutus = async(req,res)=>{
          }
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -60,7 +59,6 @@ exports.getAlladd_aboutus= async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -96,7 +94,6 @@ exports.viewAboutUs = async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -132,7 +129,6 @@ exports.viewActiveAboutUs = async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -171,7 +167,6 @@ exports.updateAboutUs= async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,
@@ -218,7 +213,6 @@ exports.updateStatus= async(req,res)=>{
 
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error Occurred",
             status: false,

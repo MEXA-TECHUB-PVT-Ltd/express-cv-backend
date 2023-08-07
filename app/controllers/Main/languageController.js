@@ -1,12 +1,10 @@
 const { pool } = require("../../config/db.config");
 exports.addLanguage = async (req, res) => {
-    console.log("Enter Language")
     // CONNECTING TO DB
     // const db = await pool.connect();
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { language, fluency, user_id } = req.body;
-        console.log("1")
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!language || !user_id) {
             return res.status(401).json({
@@ -14,16 +12,13 @@ exports.addLanguage = async (req, res) => {
                 message: "Language can not be added. Both language and user_id are required"
             });
         }
-        console.log("2")
         // SETTING UP QUERY TO ADD THE LANGUAGE
         const query = 'INSERT INTO languages (language, fluency, user_id) VALUES ($1, $2, $3) RETURNING *';
-        console.log("3")
         // ADDING THE DATA USING QUERY ABOVE
         const savedLanguage = await pool.query(query, [
             language,
             fluency ? fluency : '',
             user_id]);
-            console.log("4")
         // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
         if (!savedLanguage.rows[0]) {
             return res.status(401).json({
@@ -33,7 +28,6 @@ exports.addLanguage = async (req, res) => {
         }
 
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
-        console.log("Exit Language")
         res.status(200).json({
             status: true,
             message: "Language added sucessfully",
