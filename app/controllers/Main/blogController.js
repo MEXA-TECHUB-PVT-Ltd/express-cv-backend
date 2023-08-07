@@ -44,7 +44,6 @@ exports.addBlog = async (req, res) => {
         }
     }
     catch (err) {
-        console.log(err)
         res.json({
             message: "Error",
             status: false,
@@ -103,7 +102,6 @@ exports.updateBlog = async (req, res) => {
 
         query += 'WHERE blog_id = $1 RETURNING*'
         query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query);
 
         const result = await pool.query(query, values);
 
@@ -213,7 +211,6 @@ exports.getAllBlogs = async (req, res) => {
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            console.log(result.rows[index].sub_headings)
                             result.rows[index].sub_headings= sub_headingsResults.rows;
                         }
                     }

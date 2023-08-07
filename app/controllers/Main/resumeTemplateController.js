@@ -46,7 +46,6 @@ exports.getAllResumes = async (req,res)=>{
                 message:"Template not fetched sucessfully"
             });
         }
-        console.log(templates.rows)
         res.status(200).json({
             status: true,
             message:"Fetched Sucessfully",

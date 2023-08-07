@@ -82,7 +82,6 @@ exports.verifyOTP = async (req,res)=>{
         }
     }
     catch(err){
-        console.log(err)
         res.status(500).json({
           message: `Internal server error occurred`,
           success:false,
@@ -99,12 +98,10 @@ const sendOTPVerificationEmail = async (email, res) => {
     try {
         let result;
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`
-        console.log(otp)
 
         
         const found_email_query = 'SELECT * FROM otpStored WHERE email = $1'
         const foundStoredOtp = await pool.query(found_email_query, [email])
-        console.log(foundStoredOtp)
 
 
         if (foundStoredOtp.rowCount ==0) {
@@ -120,7 +117,6 @@ const sendOTPVerificationEmail = async (email, res) => {
                 email ? email : null
             ]
             result = await pool.query(query , values);
-            console.log(result)
             result = result.rows[0]
         }
 
@@ -133,7 +129,6 @@ const sendOTPVerificationEmail = async (email, res) => {
 
         });
 
-        console.log(sendEmailResponse);
 
         if (sendEmailResponse.accepted.length > 0) {
             res.status(200).json({
@@ -153,7 +148,6 @@ const sendOTPVerificationEmail = async (email, res) => {
 
     }
     catch (err) {
-        console.log(err)
         res.status(500).json({
             message: `Internal server error occurred`,
             success: false,

@@ -2,7 +2,6 @@ const { pool } = require("../../config/db.config");
 exports.addEducation = async (req, res) => {
     // const db = await pool.connect();
     try {
-        console.log("Enter Education")
         // DESTRUCTURE FROM REQUEST BODY
         const { title, institute, started_from, ended_at, description, user_id } = req.body;
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
@@ -35,7 +34,6 @@ exports.addEducation = async (req, res) => {
         }
 
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
-        console.log("exit Education")
         res.status(200).json({
             status: true,
             message: "Language added sucessfully",

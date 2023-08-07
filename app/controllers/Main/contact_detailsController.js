@@ -2,7 +2,6 @@ const { pool } = require("../../config/db.config");
 exports.addPersonalInfo = async (req, res) => {
 
     try {
-        console.log("Enter PersonalInfo")
         // DESTRUCTURE FROM REQUEST BODY
         const { email, address, phone, name } = req.body;
         let user_id = 20021
@@ -33,7 +32,6 @@ exports.addPersonalInfo = async (req, res) => {
             });
         }
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
-        console.log("Exit PersonalInfo")
         res.status(200).json({
             status: true,
             message: "personal info added sucessfully",

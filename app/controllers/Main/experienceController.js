@@ -1,6 +1,5 @@
 const { pool } = require("../../config/db.config");
 exports.addWorkExperience = async (req, res) => {
-    console.log("Enter addWorkExperience")
 
     try {
         // DESTRUCTURE FROM REQUEST BODY
@@ -31,7 +30,6 @@ exports.addWorkExperience = async (req, res) => {
                 message: "work Experience can not be added due to unknown reason while saving in db"
             });
         }
-        console.log("Exit addWorkExperience")
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
         res.status(200).json({
             status: true,
