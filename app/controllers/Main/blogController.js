@@ -7,9 +7,7 @@ exports.addBlog = async (req, res) => {
         const title = req.body.title;
         const description = req.body.description;
         const cover_image = req.file.path;
-
-
-        if (!title) {
+        if (!title ) {
             return (
                 res.json({
                     message: "Please provide title atleast for creating blog",
@@ -63,7 +61,7 @@ exports.updateBlog = async (req, res) => {
         const title = req.body.title;
         const description = req.body.description;
         const cover_image = req.body.cover_image;
-
+        const sub_headings = req.body.sub_headings;
 
         if (!blog_id) {
             return (
@@ -86,7 +84,11 @@ exports.updateBlog = async (req, res) => {
             values.push(title)
             index++
         }
-
+        if (sub_headings) {
+            query += `sub_headings = $${index} , `;
+            values.push(sub_headings)
+            index++
+        }
         if (description) {
             query += `description = $${index} , `;
             values.push(description)

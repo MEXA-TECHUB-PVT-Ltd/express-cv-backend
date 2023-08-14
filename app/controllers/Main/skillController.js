@@ -45,9 +45,26 @@ exports.addSkill = async (req, res) => {
     }
 }
 exports.editSkill = async (req, res) => {
-    const db = await pool.connect();
+    const {skill,level,skill_id} = req.body
     try {
-
+        if(!skill_id){
+            return res.json({
+                status:false,
+                message:'Skill id is required'
+            })
+        }
+        const result = await pool.query(`UPDATE skills SET skill = $1, level = $2 WHERE skill_id = $3 RETURNING *`,[skill,level,skill_id])
+        if(result.rowCount<1){
+            return res.json({
+                status:false,
+                message:'Skill not found'
+            })
+        }
+        res.json({
+            status:true,
+            message:'Skill updated',
+            result:result.rows[0]
+        })
     } catch (err) {
         return res.status(500).json({
             status: false,
@@ -56,9 +73,26 @@ exports.editSkill = async (req, res) => {
     }
 }
 exports.deleteSkill = async (req, res) => {
-    const db = await pool.connect();
+    const {skill_id} = req.query
     try {
-
+        if(!skill_id){
+            return res.json({
+                status:false,
+                message:'Skill id is required'
+            })
+        }
+        const result = await pool.query(`DELETE FROM skills WHERE skill_id = $1 RETURNING *`,[skill_id])
+        if(result.rowCount<1){
+            return res.json({
+                status:false,
+                message:'Skill not found'
+            })
+        }
+        res.json({
+            status:true,
+            message:'Skill Deleted',
+            result:result.rows[0]
+        })
     } catch (err) {
         return res.status(500).json({
             status: false,
@@ -118,9 +152,26 @@ exports.getUserSkill = async (req, res) => {
     }
 }
 exports.getSkillById = async (req, res) => {
-    const db = await pool.connect();
+    const {skill_id} = req.query
     try {
-
+        if(!skill_id){
+            return  res.json({
+                status:false,
+                message:'Skill_id required'
+            })
+        }
+        const result = await pool.query(`SELECT * FROM skills WHERE skill_id = $1`,[skill_id])
+        if(result.rowCount<1){
+            return res.json({
+                status:false,
+                message:'Skill not found'
+            })
+        }
+        res.json({
+            status:true,
+            message:'Skill found',
+            result:result.rows[0]
+        })
     } catch (err) {
         return res.status(500).json({
             status: false,

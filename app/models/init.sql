@@ -104,4 +104,19 @@ CREATE TABLE IF NOT EXISTS sub_headings(
   sub_headings_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   heading TEXT,
   ddetails TEXT
+);
+CREATE TABLE IF NOT EXISTS about_us(
+  about_us_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  TEXT TEXT,
+  status TEXT DEFAULT 'inactive',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS faqs(
+  faq_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  question TEXT,
+  answer TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 )

@@ -56,7 +56,7 @@ exports.updateResumes = async (req, res) => {
         // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
         if (skills) {
             // SETTING UP TITLE IN QUERY
-            query += `skills = array_append(skills, $${index}), `;
+            query += `skills = $${index} `;
             values.push(skills)
             index++
         }
@@ -76,7 +76,8 @@ exports.updateResumes = async (req, res) => {
         }
         if (languages) {
             // SETTING UP TITLE IN QUERY
-            query += `languages = array_append(languages, $${index}) , `;
+            `languages = $${index} `
+            query += `languages = $${index} `;
             values.push(languages)
             index++
         }

@@ -115,7 +115,7 @@ exports.deleteLanguage = async (req, res) => {
     const db = await pool.connect();
     try {
         // DESTRUCTURE FROM REQUEST BODY
-        const { language_id } = req.body;
+        const { language_id } = req.query;
 
         // CHECKING IF THE DATA IS AVAILABLE
         if (!language_id) {
