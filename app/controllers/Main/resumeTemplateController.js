@@ -59,3 +59,35 @@ exports.getAllResumes = async (req,res)=>{
         });
     }
 }
+exports.deleteResume = async (req,res)=>{
+    const {template_id} = req.query
+    try {
+        if(!template_id){
+            return res.json({
+                status: false,
+                message:"Template_id is required"
+            });
+        }
+        const query = 'DELETE FROM templates WHERE template_id = $1'
+        const templates = await pool.query(query, [template_id])
+
+        if(!templates.rows[0]){
+            
+            return res.status(401).json({
+                status: false,
+                message:"Template not found sucessfully"
+            });
+        }
+        res.status(200).json({
+            status: true,
+            message:"Deleted Sucessfully",
+            results: templates.rows
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message:"Internal Server Error",
+            error:err
+        });
+    }
+}

@@ -3,8 +3,7 @@ exports.addPersonalInfo = async (req, res) => {
 
     try {
         // DESTRUCTURE FROM REQUEST BODY
-        const { email, address, phone, name } = req.body;
-        let user_id = 20021
+        const { email, address, phone, name, user_id } = req.body;
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!email || !address || !phone || !name || !user_id) {
             return res.status(401).json({
@@ -47,18 +46,99 @@ exports.addPersonalInfo = async (req, res) => {
 }
 exports.editPersonalInfo = async (req, res) => {
     try {
+        // DESTRUCTURING DATA FROM BODY
+        const { personal_info_id, email, address, phone, name } = req.body;
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!personal_info_id) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, personal_info_id is required"
+            });
+        }
+
+        // SETTING UP QUERY TO UPDATE DATA IN DB IF FLUENCY IS NOT GIVEN
+        let query = 'UPDATE personal_info SET ';
+        let index = 2
+        let values = [personal_info_id]
+        let combinedquery;
+        // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
+        if (email) {
+            // SETTING UP TITLE IN QUERY
+            query += `email = $${index} , `;
+            values.push(email)
+            index++
+        }
+
+        if (address) {
+            // SETTING UP TITLE IN QUERY
+            query += `address = $${index} , `;
+            values.push(address)
+            index++
+
+        }
+        if (phone) {
+            // SETTING UP TITLE IN QUERY
+            query += `phone = $${index} , `;
+            values.push(phone)
+            index++
+        }
+        if (name) {
+            // SETTING UP TITLE IN QUERY
+            query += `name = $${index} , `;
+            values.push(name)
+            index++
+        }
+        // FINALIZING QUERY
+        query += 'WHERE personal_info_id = $1 RETURNING *'
+        query = query.replace(/,\s+WHERE/g, " WHERE");
+        // UPDATING DATA IN DB USING QUERY ABOVE
+        const educationUpdated = await pool.query(query, values);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Personal info could not be updated because Personal info with this id does not exsists"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Personal info updated sucessfully",
+            results: educationUpdated.rows[0]
+        })
 
     } catch (err) {
         return res.status(500).json({
             status: false,
-            message: "Internal server error"
+            message: "Internal server error",
+            error: err
         });
     }
 }
 exports.deletePersonalInfo = async (req, res) => {
-    const db = await pool.connect();
+    const { personal_info_id } = req.query;
     try {
-
+        if (!personal_info_id) {
+            res.status(500).json({
+                status: false,
+                message: "Personal Info id is required"
+            });
+        }
+        const query = `SELECT * FROM personal_info WHERE personal_info_id = $1`;
+        const results = await pool.query(query, [personal_info_id]);
+        if (results.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "Data does not exsists"
+            });
+        }
+        res.json({
+            status: true,
+            message: "Data fetched",
+            result: results.rows
+        });
     } catch (err) {
         return res.status(500).json({
             status: false,
@@ -69,7 +149,19 @@ exports.deletePersonalInfo = async (req, res) => {
 exports.getAllPersonalInfo = async (req, res) => {
     const db = await pool.connect();
     try {
-
+        const query = `SELECT * FROM personal_info`
+        const results = await pool.query(query)
+        if (results.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: "Data does not exsists"
+            });
+        }
+        res.json({
+            status: true,
+            message: "Data fetched",
+            result: results.rows
+        });
     } catch (err) {
         return res.status(500).json({
             status: false,
@@ -108,7 +200,7 @@ exports.getUserPersonalInfo = async (req, res) => {
         // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
         res.status(200).json({
             status: true,
-            message: "language Found sucessfully",
+            message: "Found sucessfully",
             results: personalInfo.rows
         })
     } catch (err) {
@@ -121,7 +213,37 @@ exports.getUserPersonalInfo = async (req, res) => {
 exports.getPersonalInfoById = async (req, res) => {
     const db = await pool.connect();
     try {
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        const { personal_info_id } = req.query;
 
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!personal_info_id) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because personal_info_id is required"
+            });
+        }
+
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM personal_info WHERE personal_info_id = $1';
+
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const personalInfo = await db.query(query, [personal_info_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!personalInfo.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched"
+            });
+        }
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "Found sucessfully",
+            results: personalInfo.rows
+        })
     } catch (err) {
         return res.status(500).json({
             status: false,

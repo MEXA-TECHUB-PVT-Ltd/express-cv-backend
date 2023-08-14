@@ -36,7 +36,7 @@ exports.addEducation = async (req, res) => {
         // SEDNING RESPONSE IF THE DATA WAS ADDED SUCESSFULLY
         res.status(200).json({
             status: true,
-            message: "Language added sucessfully",
+            message: "Education added sucessfully",
             results: savedEducation.rows[0]
         });
 
@@ -119,7 +119,7 @@ exports.updateEducation = async (req, res) => {
 
         res.status(200).json({
             status: true,
-            message: "language updated sucessfully",
+            message: "Experience updated sucessfully",
             results: educationUpdated.rows[0]
         })
 
@@ -135,7 +135,7 @@ exports.deleteEducation = async (req, res) => {
     const db = await pool.connect();
     try {
         // DESTRUCTURE FROM REQUEST BODY
-        const { education_id } = req.body;
+        const { education_id } = req.query;
 
         // CHECKING IF THE DATA IS AVAILABLE
         if (!education_id) {
@@ -246,7 +246,7 @@ exports.addUserEducation = async (req, res) => {
         if (!educationUpdated.rows[0]) {
             return res.status(401).json({
                 status: false,
-                message: "Education was not added in users"
+                message: "Education was not added in users because user does not exsist"
             });
         }
 
@@ -260,6 +260,47 @@ exports.addUserEducation = async (req, res) => {
         return res.status(500).json({
             status: false,
             message: err.message,
+        });
+    }
+}
+exports.getEducationById = async (req,res)=>{
+    const { education_id } = req.query;
+    try {
+        // DESTRUCTURE DATA FROM REQUEST QUERY
+        
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!education_id) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched, because education_id is required"
+            });
+        }
+
+        // SETTING UP QUERY TO FETCH USER OBJECTIVE FROM DB
+        const query = 'SELECT * FROM educations WHERE education_id = $1';
+
+        // FETCHING DATA FROM DB USING QUERY ABOVE
+        const educations = await pool.query(query, [education_id]);
+
+        // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
+        if (!educations.rows[0]) {
+            return res.status(404).json({
+                status: false,
+                message: "No Data was fetched. Education does not exsists"
+            });
+        }
+
+        // CHECKING IF THE DATA WAS FETCHED SUCESSFULLY SENDING RESPONSE WITH STATUS TRUE
+        res.status(200).json({
+            status: true,
+            message: "educations Found sucessfully",
+            results: educations.rows
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error"
         });
     }
 }

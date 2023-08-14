@@ -23,6 +23,8 @@ app.use("/blogs", require("./app/routes/Main/blogRoute"))
 app.use("/privacyPolicy", require("./app/routes/Main/privacy_policyRoute"))
 app.use("/terms", require("./app/routes/Main/terms_and_conditionsRoute"))
 app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
+app.use("/about_us", require("./app/routes/Main/about_usRoute"))
+app.use("/faq", require("./app/routes/Main/faqRoute"))
 app.listen(process.env.PORT, async () => {
     console.log(`
     ################################################
