@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS resumes (
   resume_template_id INT NOT NULL ,
   user_id INT NOT NULL ,
   skills INT[] ,
+  interests TEXT[],
   objective INT ,
   personal_info INT ,
   languages INT[] ,
