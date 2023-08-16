@@ -3,7 +3,7 @@ exports.addWorkExperience = async (req, res) => {
 
     try {
         // DESTRUCTURE FROM REQUEST BODY
-        const { title, location, started_from, ended_at, description, user_id } = req.body;
+        const { title, location, started_from, ended_at, description, user_id, company } = req.body;
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!title || !location || !started_from || !ended_at || !description || !user_id) {
             return res.status(401).json({
@@ -13,7 +13,7 @@ exports.addWorkExperience = async (req, res) => {
         }
 
         // SETTING UP QUERY TO ADD THE LANGUAGE
-        const query = 'INSERT INTO workExperience (title, location, started_from, ended_at, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+        const query = 'INSERT INTO workExperience (title, location, started_from, ended_at, description, user_id, company) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *';
         // ADDING THE DATA USING QUERY ABOVE
         const savedEducation = await pool.query(query, [
             title ? title : '',
@@ -21,7 +21,8 @@ exports.addWorkExperience = async (req, res) => {
             started_from ? started_from : '',
             ended_at ? ended_at : '',
             description ? description : '',
-            user_id ? user_id : ''
+            user_id ? user_id : '',
+            company ? company : ''
         ]);
         // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
         if (!savedEducation.rows[0]) {
@@ -50,7 +51,7 @@ exports.addWorkExperience = async (req, res) => {
 exports.editWorkExperience = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM BODY
-        const { title, location, started_from, ended_at, description, experience_id } = req.body;
+        const { title, location, started_from, ended_at, description, experience_id, company } = req.body;
 
         // CHECKING IF THE DATA IS AVAILABLE
         if (!experience_id) {
@@ -72,7 +73,12 @@ exports.editWorkExperience = async (req, res) => {
             values.push(title)
             index++
         }
-
+        if (company) {
+            // SETTING UP TITLE IN QUERY
+            query += `company = $${index} , `;
+            values.push(company)
+            index++
+        }
         if (location) {
             // SETTING UP TITLE IN QUERY
             query += `location = $${index} , `;

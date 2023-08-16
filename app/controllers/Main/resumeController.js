@@ -32,14 +32,14 @@ exports.addResumes = async (req, res) => {
 }
 exports.updateResumes = async (req, res) => {
     try {
-        const { resume_id, skills, objective, personal_info, languages, work_experience, educations } = req.body;
+        const { resume_id, skills, objective, personal_info, languages, work_experience, educations, interests } = req.body;
         if (!resume_id) {
             return res.status(401).json({
                 status: false,
                 message: "resume_id is required"
             });
         }
-        if (skills || objective || personal_info || languages || work_experience || educations) {
+        if (skills || objective || personal_info || languages || work_experience || educations || interests) {
 
         }
         else {
@@ -56,7 +56,7 @@ exports.updateResumes = async (req, res) => {
         // CHECKING IF FLUENCY IS NOT AVAILABLE THEN UPDATING ONLY LANGUAGE
         if (skills) {
             // SETTING UP TITLE IN QUERY
-            query += `skills = $${index} `;
+            query += `skills = array_append(skills, $${index}) , `;
             values.push(skills)
             index++
         }
@@ -76,8 +76,7 @@ exports.updateResumes = async (req, res) => {
         }
         if (languages) {
             // SETTING UP TITLE IN QUERY
-            `languages = $${index} `
-            query += `languages = $${index} `;
+            query += `languages = array_append(languages, $${index}) , `;
             values.push(languages)
             index++
         }
@@ -85,6 +84,12 @@ exports.updateResumes = async (req, res) => {
             // SETTING UP TITLE IN QUERY
             query += `work_experience = array_append(work_experience, $${index}) , `;
             values.push(work_experience)
+            index++
+        }
+        if (interests) {
+            // SETTING UP TITLE IN QUERY
+            query += `interests = array_append(interests, $${index}) , `;
+            values.push(interests)
             index++
         }
         if (educations) {
@@ -96,7 +101,7 @@ exports.updateResumes = async (req, res) => {
         // FINALIZING QUERY
         query += 'WHERE resumes_id = $1 RETURNING *'
         query = query.replace(/,\s+WHERE/g, " WHERE");
-
+        console.log(query)
         const educationUpdated = await pool.query(query, values);
         if (!educationUpdated.rows[0]) {
             return res.status(401).json({
