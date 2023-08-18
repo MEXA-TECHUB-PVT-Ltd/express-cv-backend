@@ -3,24 +3,25 @@ exports.addPersonalInfo = async (req, res) => {
 
     try {
         // DESTRUCTURE FROM REQUEST BODY
-        const { email, address, phone, name, user_id } = req.body;
+        const { email, address, phone, name, user_id, license } = req.body;
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
-        if (!email || !address || !phone || !name || !user_id) {
+        if (!email || !phone || !name || !user_id) {
             return res.status(401).json({
                 status: false,
-                message: "Personal Info can not be added. Both all email, address, phone, name, user_id are required"
+                message: "Personal Info can not be added. Both all email, phone, name, user_id are required"
             });
         }
 
         // SETTING UP QUERY TO ADD THE LANGUAGE
-        const query = 'INSERT INTO personal_info (email, address, phone, name, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+        const query = 'INSERT INTO personal_info (email, address, phone, name, user_id, license ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
         // ADDING THE DATA USING QUERY ABOVE
         const savedPersonalInfo = await pool.query(query, [
             email ? email : '',
             address ? address : '',
             phone ? phone : '',
             name ? name : '',
-            user_id ? user_id : ''
+            user_id ? user_id : '',
+            license ? license :''
         ]);
 
         // CHECKING IF THE DATA WAS ADDED SUCESSFULLY
@@ -47,7 +48,7 @@ exports.addPersonalInfo = async (req, res) => {
 exports.editPersonalInfo = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM BODY
-        const { personal_info_id, email, address, phone, name } = req.body;
+        const { personal_info_id, email, address, phone, name, license } = req.body;
 
         // CHECKING IF THE DATA IS AVAILABLE
         if (!personal_info_id) {
@@ -69,7 +70,12 @@ exports.editPersonalInfo = async (req, res) => {
             values.push(email)
             index++
         }
-
+        if (license) {
+            // SETTING UP TITLE IN QUERY
+            query += `license = $${index} , `;
+            values.push(license)
+            index++
+        }
         if (address) {
             // SETTING UP TITLE IN QUERY
             query += `address = $${index} , `;
