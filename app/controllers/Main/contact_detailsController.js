@@ -4,11 +4,12 @@ exports.addPersonalInfo = async (req, res) => {
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { email, address, phone, name, user_id } = req.body;
+        console.log(email, address, phone, name, user_id)
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!email || !address || !phone || !name || !user_id) {
             return res.status(401).json({
                 status: false,
-                message: "Personal Info can not be added. Both all email, address, phone, name, user_id are required"
+                message: "Personal Info can not be added. All email, address, phone, name, user_id are required"
             });
         }
 

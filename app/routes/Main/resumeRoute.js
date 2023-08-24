@@ -8,5 +8,6 @@ resumesRouter.delete("/delete-resume", controller.deleteResume);
 resumesRouter.get("/get-all-resumes");
 resumesRouter.get("/get-user-resumes", controller.getUserResumes);
 resumesRouter.get("/get-resumes-by-id", controller.getResumesById);
-
+resumesRouter.post("/remove-education-in-resume", controller.removeResumeEducation);
+resumesRouter.post("/remove-experience-in-resume", controller.removeResumeExperience);
 module.exports = resumesRouter;

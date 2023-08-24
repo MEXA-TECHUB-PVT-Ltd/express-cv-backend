@@ -11,6 +11,7 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 app.use("/user", require("./app/routes/Users/userRoute"))
+app.use("/admin", require("./app/routes/Users/adminRoute"))
 app.use("/education", require("./app/routes/Main/educationRoute"))
 app.use("/languages", require("./app/routes/Main/languageRoute"))
 app.use("/objectives", require("./app/routes/Main/objectiveRoute"))

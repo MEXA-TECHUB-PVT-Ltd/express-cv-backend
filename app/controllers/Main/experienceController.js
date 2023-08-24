@@ -284,3 +284,41 @@ exports.addUserExperience = async (req, res) => {
         });
     }
 }
+exports.removeUserExperience = async (req, res) => {
+    // const db = await pool.connect();
+    try {
+        // DESTRUCTURING DATA FROM BODY
+        const { experience_id, user_id } = req.body;
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!experience_id || !user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, experience_id and user_id is required"
+            });
+        }
+
+        const query = 'UPDATE users SET experience = array_remove(experience, $1) WHERE user_id = $2 RETURNING *'
+        const experienceUpdated = await pool.query(query, [experience_id, user_id]);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!experienceUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Experience was not added in users"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Experience Added sucessfully",
+            results: experienceUpdated.rows[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message,
+        });
+    }
+}
