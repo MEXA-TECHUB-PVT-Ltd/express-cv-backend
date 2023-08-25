@@ -12,4 +12,8 @@ router.get("/getAllBlogs" , controller.getAllBlogs);
 router.get("/getBlogById" , controller.getBlogById);
 router.post("/addSubHeading" , controller.addSubHeadings);
 
+router.get("/getByDate" , controller.getByDate);
+router.get("/getByWeek" , controller.getByWeek);
+router.get("/getByMonth" , controller.getByMonth);
+router.get("/getByYear" , controller.getByYear);
 module.exports = router;
