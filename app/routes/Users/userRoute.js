@@ -13,5 +13,6 @@ userRouter.get("/otp-verification", userController.otpVerification);
 userRouter.put("/update-user-info", userController.updateUserInfo);
 userRouter.put("/update-password", userController.changePassword);
 userRouter.post("/reset-password", userController.resetPassword);
+userRouter.put("/changeBlockStatus", userController.changeBlockStatus);
 userRouter.post("/uploadUserimage", upload.single('image'), userController.uploadImage);
 module.exports =  userRouter;

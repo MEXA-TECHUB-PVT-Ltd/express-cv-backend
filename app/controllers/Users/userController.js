@@ -472,3 +472,43 @@ exports.uploadImage = async (req, res) => {
         results: path
     })
 }
+exports.changeBlockStatus = async (req, res) => {
+    const status = req.query.block_status
+    const user_id = req.query.user_id
+    try {
+        let result;
+        if (!status || !user_id) {
+            return res.json({
+                status: false,
+                message: 'Status and user_id is required'
+            })
+        }
+        if (status != 'block' && status != 'unblock') {
+            return res.json({
+                status: false,
+                message: 'Status can only be block or unblock'
+            })
+        }
+        if (status == 'block') {
+            const query = `UPDATE users SET status = $1 WHERE user_id = $2 RETURNING*`
+            result = await pool.query(query, ['block', user_id])
+        }
+        else {
+            const query = `UPDATE users SET status = $1 WHERE user_id = $2 RETURNING*`
+            result = await pool.query(query, ['unblock', user_id])
+        }
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'User with this id does not exists'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'Status updated',
+            result: result.rows[0]
+        })
+    } catch (err) {
+
+    }
+}

@@ -60,9 +60,10 @@ exports.updateBlog = async (req, res) => {
         const blog_id = req.body.blog_id;
         const title = req.body.title;
         const description = req.body.description;
-        const cover_image = req.body.cover_image;
+        const cover_image = req.file?.path;
         const sub_headings = req.body.sub_headings;
-
+        const subHeadings = JSON.parse(sub_headings);
+        console.log(subHeadings)
         if (!blog_id) {
             return (
                 res.json({
@@ -86,7 +87,7 @@ exports.updateBlog = async (req, res) => {
         }
         if (sub_headings) {
             query += `sub_headings = $${index} , `;
-            values.push(sub_headings)
+            values.push(subHeadings)
             index++
         }
         if (description) {
