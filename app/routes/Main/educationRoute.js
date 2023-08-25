@@ -9,5 +9,5 @@ educationRouter.get("/get-all-education");
 educationRouter.get("/get-user-education", controller.getUserEducation);
 educationRouter.put("/add-user-education", controller.addUserEducation);
 educationRouter.get("/get-education-by-id",controller.getEducationById);
-
+educationRouter.put("/remove-user-education", controller.removeUserEducation);
 module.exports = educationRouter;

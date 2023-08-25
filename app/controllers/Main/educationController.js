@@ -263,6 +263,45 @@ exports.addUserEducation = async (req, res) => {
         });
     }
 }
+exports.removeUserEducation = async (req, res) => {
+    // const db = await pool.connect();
+    try {
+        // DESTRUCTURING DATA FROM BODY
+        const { education_id, user_id } = req.body;
+
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!education_id || !user_id) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, education_id and user_id is required"
+            });
+        }
+
+        const query = 'UPDATE users SET education = array_remove(education, $1) WHERE user_id = $2 RETURNING *'
+        const educationUpdated = await pool.query(query, [education_id, user_id]);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Education was not added in users because user does not exsist"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Education Added sucessfully",
+            results: educationUpdated.rows[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message,
+        });
+    }
+}
+
 exports.getEducationById = async (req,res)=>{
     const { education_id } = req.query;
     try {

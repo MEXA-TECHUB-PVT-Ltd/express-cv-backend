@@ -60,9 +60,10 @@ exports.updateBlog = async (req, res) => {
         const blog_id = req.body.blog_id;
         const title = req.body.title;
         const description = req.body.description;
-        const cover_image = req.body.cover_image;
+        const cover_image = req.file?.path;
         const sub_headings = req.body.sub_headings;
-
+        const subHeadings = JSON.parse(sub_headings);
+        console.log(subHeadings)
         if (!blog_id) {
             return (
                 res.json({
@@ -86,7 +87,7 @@ exports.updateBlog = async (req, res) => {
         }
         if (sub_headings) {
             query += `sub_headings = $${index} , `;
-            values.push(sub_headings)
+            values.push(subHeadings)
             index++
         }
         if (description) {
@@ -314,5 +315,209 @@ exports.addSubHeadings = async (req, res) => {
             status: false,
             message: error.message
         })
+    }
+}
+exports.getByDate = async (req, res) => {
+    const { date } = req.query;
+    try {
+        const query = `SELECT * FROM blogs WHERE created_at::DATE = $1`;
+        const result = await pool.query(query, [date])
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'No results Fetched'
+
+            })
+        }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+                        
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        return res.json({
+            status: true,
+            message: 'Fetched',
+            totalCoutn: result.rowCount,
+            result: result.rows
+
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
+exports.getByWeek = async (req, res) => {
+    const date = req.query.Fromdate;
+    try {
+
+        const startDate = new Date(date);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        const query = `SELECT * FROM blogs WHERE created_at::DATE >= $1 AND created_at::DATE <= $2`;;
+        const result = await pool.query(query, [startDate.toISOString().slice(0, 10), endDate.toISOString().slice(0, 10)])
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'No results Fetched'
+
+            })
+        }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+                        
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        return res.json({
+            status: true,
+            message: 'Fetched',
+            totalCoutn: result.rowCount,
+            result: result.rows
+
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
+exports.getByMonth = async (req, res) => {
+    const userProvidedMonth = req.query.month;
+    try {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const monthIndex = monthNames.findIndex(month => month.toLowerCase() === userProvidedMonth.toLowerCase());
+        if (monthIndex === -1) {
+            return res.json({
+                status: false,
+                message: 'Invalid month name'
+            });
+        }
+        const startDate = new Date(new Date().getFullYear(), monthIndex, 1);
+        const endDate = new Date(new Date().getFullYear(), monthIndex + 1, 0);
+
+        const query = `SELECT * FROM blogs WHERE created_at::DATE >= $1 AND created_at::DATE <= $2`;;
+        const result = await pool.query(query, [startDate.toISOString().slice(0, 10), endDate.toISOString().slice(0, 10)])
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'No results Fetched'
+
+            })
+        }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        return res.json({
+            status: true,
+            message: 'Fetched',
+            totalCoutn: result.rowCount,
+            result: result.rows
+
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+}
+exports.getByYear = async (req, res) => {
+    const userProvidedYear = req.query.year;
+    try {
+        const startDate = new Date(userProvidedYear, 0, 1); // January 1st of the provided year
+        const endDate = new Date(userProvidedYear, 11, 31);
+
+        const query = `
+        SELECT * FROM blogs
+        WHERE created_at::DATE >= $1 AND created_at::DATE <= $2
+        ORDER BY EXTRACT(MONTH FROM created_at), created_at`;
+        const result = await pool.query(query, [startDate.toISOString().slice(0, 10), endDate.toISOString().slice(0, 10)])
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'No results Fetched'
+
+            })
+        }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+                        
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        
+        const organizedResults = {};
+        for (const month of monthNames) {
+            organizedResults[month] = [];
+        }
+        
+        result.rows.forEach(row => {
+            const month = new Date(row.created_at).getMonth();
+            const monthName = monthNames[month];
+            organizedResults[monthName].push(row);
+        });
+
+        return res.json({
+            status: true,
+            message: 'Fetched',
+            totalCoutn: result.rowCount,
+            result: organizedResults
+
+        })
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            error: err.message
+        });
     }
 }

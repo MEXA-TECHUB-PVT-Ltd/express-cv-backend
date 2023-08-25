@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   education INT[],
   experience INT[],
   password TEXT NOT NULL ,
-  block BOOLEAN DEFAULT false
+  status BOOLEAN DEFAULT 'unblock'
 );
 CREATE TABLE IF NOT EXISTS objectives(
     objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -69,8 +69,16 @@ CREATE TABLE IF NOT EXISTS resumes (
   personal_info INT ,
   languages INT[] ,
   work_experience INT[] ,
-  educations INT[] 
-  
+  educations INT[] ,
+  created_at DATE DEFAULT NOW(),
+  updated_at DATE DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS resume_downloads (
+  resume_downloads_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  resume_id INT ,
+  user_id INT ,
+  created_at DATE DEFAULT NOW(),
+  updated_at DATE DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS otpStored(
   otp_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY ,
