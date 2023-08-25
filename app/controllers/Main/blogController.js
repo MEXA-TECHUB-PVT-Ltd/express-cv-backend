@@ -62,7 +62,10 @@ exports.updateBlog = async (req, res) => {
         const description = req.body.description;
         const cover_image = req.file?.path;
         const sub_headings = req.body.sub_headings;
-        const subHeadings = JSON.parse(sub_headings);
+        let subHeadings;
+        if(sub_headings){
+            subHeadings = JSON.parse(sub_headings);
+        }
         console.log(subHeadings)
         if (!blog_id) {
             return (

@@ -9,7 +9,14 @@ CREATE TABLE IF NOT EXISTS users (
   education INT[],
   experience INT[],
   password TEXT NOT NULL ,
-  status BOOLEAN DEFAULT 'unblock'
+  status TEXT DEFAULT 'unblock'
+);
+CREATE TABLE IF NOT EXISTS admins (
+  admin_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  img TEXT  ,
+  user_name TEXT ,
+  email TEXT 
+  password TEXT
 );
 CREATE TABLE IF NOT EXISTS objectives(
     objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
