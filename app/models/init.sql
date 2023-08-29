@@ -9,7 +9,14 @@ CREATE TABLE IF NOT EXISTS users (
   education INT[],
   experience INT[],
   password TEXT NOT NULL ,
-  status BOOLEAN DEFAULT 'unblock'
+  status TEXT DEFAULT 'unblock'
+);
+CREATE TABLE IF NOT EXISTS admins (
+  admin_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  img TEXT  ,
+  user_name TEXT ,
+  email TEXT ,
+  password TEXT
 );
 CREATE TABLE IF NOT EXISTS objectives(
     objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -112,7 +119,9 @@ CREATE TABLE IF NOT EXISTS blogs(
 CREATE TABLE IF NOT EXISTS sub_headings(
   sub_headings_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   heading TEXT,
-  ddetails TEXT
+  ddetails TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS about_us(
   about_us_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -128,4 +137,4 @@ CREATE TABLE IF NOT EXISTS faqs(
   answer TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
-)
+);

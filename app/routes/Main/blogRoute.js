@@ -6,7 +6,7 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/blogImages' });
 
 router.post("/addBlog" , upload.single('image'), controller.addBlog);
-router.put("/updateBlog" , upload.single('image'), controller.updateBlog);
+router.put("/updateBlog" , controller.updateBlog);
 router.delete("/deleteBlog" , controller.deleteBlog);
 router.get("/getAllBlogs" , controller.getAllBlogs);
 router.get("/getBlogById" , controller.getBlogById);
