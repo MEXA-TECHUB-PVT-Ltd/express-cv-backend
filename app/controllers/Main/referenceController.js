@@ -2,7 +2,7 @@ const {pool} = require("../../config/db.config");
 
 
 exports.addreference = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
         const user_id = req.body.user_id;
         const name = req.body.name;
@@ -49,14 +49,12 @@ exports.addreference = async (req, res) => {
             error: err.messagefalse
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.updatereference = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
         const reference_id = req.body.reference_id;
         const name = req.body.name;
@@ -128,13 +126,11 @@ exports.updatereference = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.deletereference = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
         const reference_id = req.query.reference_id;
         if (!reference_id) {
@@ -170,13 +166,11 @@ exports.deletereference = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.getAllreferences = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
 
         let limit = req.query.limit;
@@ -220,14 +214,12 @@ exports.getAllreferences = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.getreferenceById = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
         const reference_id = req.query.reference_id;
 
@@ -263,14 +255,12 @@ exports.getreferenceById = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.getreferencesByuser_id = async(req,res)=>{
-    const client = await pool.connect();
+    
     try {
         const user_id = req.query.user_id;
         if (!user_id) {
@@ -305,8 +295,6 @@ exports.getreferencesByuser_id = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }

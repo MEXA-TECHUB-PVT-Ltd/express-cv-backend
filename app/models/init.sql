@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   user_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   user_name TEXT  ,
   email TEXT UNIQUE NOT NULL ,
-  phone Number ,
+  phone TEXT ,
   profile_img TEXT ,
   education INT[],
   experience INT[],

@@ -7,7 +7,7 @@ const {pool} = require("../../config/db.config");
 
 
 exports.registerAdmin =async (req,res,next)=>{
-    const client = await pool.connect();
+    
 
     try{
         const { error } = registerSchema.validate(req.body);
@@ -66,9 +66,7 @@ exports.registerAdmin =async (req,res,next)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
     
     
 }
@@ -170,7 +168,7 @@ exports.viewAdminProfile = async(req,res)=>{
 }
 
 exports.updateProfile = async (req, res) => {
-    const client = await pool.connect();
+    
     try {
         const admin_id = req.body.admin_id;
         const user_name = req.body.user_name;
@@ -228,13 +226,11 @@ exports.updateProfile = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.getAllAdmins = async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const query = 'SELECT * FROM admins'
         const result = await pool.query(query);
@@ -261,13 +257,11 @@ exports.getAllAdmins = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.passwordUpdate = async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const email = req.body.email;
         const newPassword = req.body.newPassword ;
@@ -317,9 +311,7 @@ exports.passwordUpdate = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 const registerSchema = Joi.object({
     email: Joi.string().min(6).required().email(),
