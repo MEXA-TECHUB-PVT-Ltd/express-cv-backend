@@ -7,7 +7,7 @@ const fs= require('fs')
 const hairStylesStorage = multer.diskStorage({
   destination: function (req, file, cb) {
      if(req.body.image_type === 'user_profile_image'){
-      const dir = './user_profile_images/';
+      const dir = './uploads/userProfileImage';
 
       if(!fs.existsSync(dir)){
           fs.mkdirSync(dir, {recursive:true});
@@ -15,7 +15,7 @@ const hairStylesStorage = multer.diskStorage({
       cb(null , dir)
   }
   else if(req.body.image_type === 'resume_template_image'){
-    const dir = './resume_template_images/';
+    const dir = './uploads/templates';
 
     if(!fs.existsSync(dir)){
         fs.mkdirSync(dir, {recursive:true});
@@ -23,7 +23,7 @@ const hairStylesStorage = multer.diskStorage({
     cb(null , dir)
 }
 else if(req.body.image_type === 'blog_image'){
-  const dir = './blog_images/';
+  const dir = './uploads/blogImages';
 
   if(!fs.existsSync(dir)){
       fs.mkdirSync(dir, {recursive:true});

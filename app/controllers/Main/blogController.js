@@ -7,7 +7,7 @@ exports.addBlog = async (req, res) => {
         const title = req.body.title;
         const description = req.body.description;
         const cover_image = req.file.path;
-        if (!title ) {
+        if (!title) {
             return (
                 res.json({
                     message: "Please provide title atleast for creating blog",
@@ -60,13 +60,8 @@ exports.updateBlog = async (req, res) => {
         const blog_id = req.body.blog_id;
         const title = req.body.title;
         const description = req.body.description;
-        const cover_image = req.file?.path;
+        const cover_image = req.body.cover_image;
         const sub_headings = req.body.sub_headings;
-        let subHeadings;
-        if(sub_headings){
-            subHeadings = JSON.parse(sub_headings);
-        }
-        console.log(subHeadings)
         if (!blog_id) {
             return (
                 res.json({
@@ -90,7 +85,7 @@ exports.updateBlog = async (req, res) => {
         }
         if (sub_headings) {
             query += `sub_headings = $${index} , `;
-            values.push(subHeadings)
+            values.push(sub_headings)
             index++
         }
         if (description) {
@@ -213,11 +208,11 @@ exports.getAllBlogs = async (req, res) => {
             result.rows.map(async (results, index) => {
                 if (results.sub_headings !== null) {
                     if (results.sub_headings.length > 0) {
-                        
+
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
                         }
                     }
                 }
@@ -285,25 +280,34 @@ exports.getBlogById = async (req, res) => {
 
 }
 exports.addSubHeadings = async (req, res) => {
-    const { heading, details, blog_id } = req.body;
+    const { subHeadings, blog_id } = req.body;
     try {
-        if (!heading || !details || !blog_id) {
+        let ids = [];
+        if (!subHeadings) {
             return res.json({
                 status: false,
-                message: "Heading, Details and blog_id is required"
+                message: "subHeadings are required"
             })
         }
-        const query = 'INSERT INTO sub_headings (heading,ddetails) VALUES ($1, $2) RETURNING *';
-        const postSUbHeading = await pool.query(query, [heading, details]);
-        if (postSUbHeading.rowCount < 1) {
-            return res.json({
-                status: false,
-                message: "Sub Heading was not added sucessfully"
-            })
-        }
-        const insertInBlogQuery = 'UPDATE blogs SET sub_headings = array_append(sub_headings, $1) WHERE blog_id = $2 RETURNING *;';
-        const insertInBlog = await pool.query(insertInBlogQuery, [postSUbHeading.rows[0].sub_headings_id, blog_id]);
-        if (insertInBlog.rowCount < 1) {
+        await Promise.all(subHeadings.map(async (item, index) => {
+            if (item) {
+                const query = 'INSERT INTO sub_headings (heading,ddetails) VALUES ($1, $2) RETURNING *';
+                const postSUbHeading = await pool.query(query, [item.heading ? item.heading : '', item.details ? item.details : '']);
+                if (postSUbHeading.rowCount > 0) {
+                    ids.push(postSUbHeading.rows[0].sub_headings_id)
+                }
+            }
+        }))
+        let error = false
+        ids.map(async (item) => {
+            const insertInBlogQuery = 'UPDATE blogs SET sub_headings = array_append(sub_headings, $1) WHERE blog_id = $2 RETURNING *;';
+            const insertInBlog = await pool.query(insertInBlogQuery, [item, blog_id]);
+            if(insertInBlog.rowCount < 1){
+                error = true
+            }
+        })
+
+        if (error) {
             return res.json({
                 status: false,
                 message: "Sub Heading was added but id was not inserted in blog sucessfully"
@@ -336,11 +340,11 @@ exports.getByDate = async (req, res) => {
             result.rows.map(async (results, index) => {
                 if (results.sub_headings !== null) {
                     if (results.sub_headings.length > 0) {
-                        
+
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
                         }
                     }
                 }
@@ -381,11 +385,11 @@ exports.getByWeek = async (req, res) => {
             result.rows.map(async (results, index) => {
                 if (results.sub_headings !== null) {
                     if (results.sub_headings.length > 0) {
-                        
+
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
                         }
                     }
                 }
@@ -440,7 +444,7 @@ exports.getByMonth = async (req, res) => {
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
                         }
                     }
                 }
@@ -483,11 +487,11 @@ exports.getByYear = async (req, res) => {
             result.rows.map(async (results, index) => {
                 if (results.sub_headings !== null) {
                     if (results.sub_headings.length > 0) {
-                        
+
                         const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
                         const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
                         if (sub_headingsResults.rowCount > 0) {
-                            result.rows[index].sub_headings= sub_headingsResults.rows;
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
                         }
                     }
                 }
@@ -497,12 +501,12 @@ exports.getByYear = async (req, res) => {
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
-        
+
         const organizedResults = {};
         for (const month of monthNames) {
             organizedResults[month] = [];
         }
-        
+
         result.rows.forEach(row => {
             const month = new Date(row.created_at).getMonth();
             const monthName = monthNames[month];
