@@ -47,9 +47,7 @@ exports.addBlog = async (req, res) => {
             error: err.messagefalse
         })
     }
-    finally {
-        client.release();
-    }
+    
 
 }
 
@@ -126,9 +124,7 @@ exports.updateBlog = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-    }
+    
 }
 
 exports.deleteBlog = async (req, res) => {
@@ -167,9 +163,7 @@ exports.deleteBlog = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-    }
+    
 }
 
 exports.getAllBlogs = async (req, res) => {
@@ -228,9 +222,7 @@ exports.getAllBlogs = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-    }
+    
 
 }
 
@@ -269,9 +261,7 @@ exports.getBlogById = async (req, res) => {
             message: err.message
         })
     }
-    finally {
-        client.release();
-    }
+    
 
 }
 exports.addSubHeadings = async (req, res) => {
