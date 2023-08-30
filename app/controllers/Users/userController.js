@@ -197,7 +197,7 @@ exports.forgetPassword = async (req, res) => {
         if (findUSer.rowCount < 1) {
             return res.status(401).json({
                 status: false,
-                message: "Invalid Email Address"
+                message: "Unregistered Email"
             });
         }
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
@@ -316,8 +316,12 @@ exports.resetPassword = async (req, res) => {
                 message: "The request can not be completed because otp could not be verified"
             })
         }
+        const salt = await bcrypt.genSalt(10);
+
+        // password hashing
+        const hashPassword = await bcrypt.hash(password, salt);
         const query1 = 'UPDATE users SET password = $1  WHERE email = $2 RETURNING *'
-        const updatePassword = await pool.query(query1, [password, getOtpUser.rows[0].email])
+        const updatePassword = await pool.query(query1, [hashPassword, getOtpUser.rows[0].email])
         if (updatePassword.rowCount < 1) {
             return res.json({
                 status: false,
@@ -420,15 +424,15 @@ exports.updateUserInfo = async (req, res) => {
         }
         if (user_name && phone) {
             query = 'UPDATE users SET user_name =$2, phone = $3 WHERE user_id = $1 RETURNING *';
-            values = [user_id, user_name, phone]
+            values = [user_id, user_name ? user_name : '', phone ? phone : '']
         }
         if (user_name && !phone) {
             query = 'UPDATE users SET user_name = $2 WHERE user_id = $1 RETURNING *';
-            values = [user_id, user_name]
+            values = [user_id, user_name ? user_name : '']
         }
         if (!user_name && phone) {
             query = 'UPDATE users SET phone = $2 WHERE user_id = $1 RETURNING *';
-            values = [user_id, phone]
+            values = [user_id, phone ? phone : '']
         }
         const updatedData = await pool.query(query, values);
         if (updatedData.rowCount < 1) {

@@ -2,7 +2,6 @@ const {pool} = require("../../config/db.config");
 
 
 exports.addInterest = async (req, res) => {
-    const client = await pool.connect();
     try {
         const text = req.body.text;
         const user_id = req.body.user_id;
@@ -45,14 +44,11 @@ exports.addInterest = async (req, res) => {
             error: err.messagefalse
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.updateinterest = async (req, res) => {
-    const client = await pool.connect();
     try {
         const interest_id = req.body.interest_id;
         const text = req.body.text;
@@ -108,13 +104,10 @@ exports.updateinterest = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.deleteinterest = async (req, res) => {
-    const client = await pool.connect();
     try {
         const interest_id = req.query.interest_id;
         if (!interest_id) {
@@ -150,13 +143,10 @@ exports.deleteinterest = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.getAllinterests = async (req, res) => {
-    const client = await pool.connect();
     try {
 
         let limit = req.query.limit;
@@ -200,14 +190,11 @@ exports.getAllinterests = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.getinterestById = async (req, res) => {
-    const client = await pool.connect();
     try {
         const interest_id = req.query.interest_id;
 
@@ -243,14 +230,11 @@ exports.getinterestById = async (req, res) => {
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }
 
 exports.getInterestsByuser_id = async(req,res)=>{
-    const client = await pool.connect();
     try {
         const user_id = req.query.user_id;
 
@@ -286,8 +270,6 @@ exports.getInterestsByuser_id = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 
 }

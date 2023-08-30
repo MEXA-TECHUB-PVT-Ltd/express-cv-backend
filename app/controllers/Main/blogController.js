@@ -2,7 +2,6 @@ const { pool } = require("../../config/db.config");
 
 
 exports.addBlog = async (req, res) => {
-    const client = await pool.connect();
     try {
         const title = req.body.title;
         const description = req.body.description;
@@ -55,7 +54,6 @@ exports.addBlog = async (req, res) => {
 }
 
 exports.updateBlog = async (req, res) => {
-    const client = await pool.connect();
     try {
         const blog_id = req.body.blog_id;
         const title = req.body.title;
@@ -134,7 +132,6 @@ exports.updateBlog = async (req, res) => {
 }
 
 exports.deleteBlog = async (req, res) => {
-    const client = await pool.connect();
     try {
         const blog_id = req.query.blog_id;
         if (!blog_id) {
@@ -176,7 +173,6 @@ exports.deleteBlog = async (req, res) => {
 }
 
 exports.getAllBlogs = async (req, res) => {
-    const client = await pool.connect();
     try {
         let limit = req.query.limit;
         let page = req.query.page
@@ -239,7 +235,6 @@ exports.getAllBlogs = async (req, res) => {
 }
 
 exports.getBlogById = async (req, res) => {
-    const client = await pool.connect();
     try {
         const blog_id = req.query.blog_id;
 

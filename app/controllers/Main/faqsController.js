@@ -2,7 +2,6 @@ const {pool} = require('../../config/db.config');
 
 
 exports.addFaq = async(req,res)=>{
-    const client = await pool.connect();
     try{
         const question = req.body.question ;
         const answer = req.body.answer ;
@@ -31,15 +30,12 @@ exports.addFaq = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
     
 }
 
 
 exports.getAllFaqs = async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const query = 'SELECT * FROM faqs';
@@ -68,14 +64,10 @@ exports.getAllFaqs = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.viewFaq = async(req,res)=>{
-    const client = await pool.connect();
-
     try{
         const faq_id = req.query.faq_id;
         const query = 'SELECT * FROM faqs WHERE faq_id= $1';
@@ -104,14 +96,11 @@ exports.viewFaq = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 
 exports.updateFaq= async(req,res)=>{
-    const client = await pool.connect();
 
     
     try{
@@ -166,14 +155,11 @@ exports.updateFaq= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 
 exports.DeleteFaq= async(req,res)=>{
-    const client = await pool.connect();
 
     
     try{
@@ -207,7 +193,5 @@ exports.DeleteFaq= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
