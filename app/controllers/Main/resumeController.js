@@ -235,7 +235,6 @@ exports.updateResumes = async (req, res) => {
         // FINALIZING QUERY
         query += 'WHERE resumes_id = $1 RETURNING *'
         query = query.replace(/,\s+WHERE/g, " WHERE");
-        console.log(query)
         const educationUpdated = await pool.query(query, values);
         if (!educationUpdated.rows[0]) {
             return res.status(401).json({
@@ -243,10 +242,23 @@ exports.updateResumes = async (req, res) => {
                 message: "Resume not updated sucessfully",
             });
         }
+        let date = new Date();
+        console.log(date)
+
+        const updateTime = `UPDATE resumes SET updated_at = $1 WHERE resumes_id = $2 RETURNING*`
+        const update = await pool.query(updateTime, [date, resume_id]);
+        if(update.rowCount<1){
+            console.log('in uodate');
+            return res.status(200).json({
+                status: true,
+                message: "Data Updated",
+                results: educationUpdated.rows[0]
+            });
+        }
         res.status(200).json({
             status: true,
             message: "Data Updated",
-            results: educationUpdated.rows[0]
+            results: update.rows[0]
         });
     } catch (err) {
         return res.status(500).json({
