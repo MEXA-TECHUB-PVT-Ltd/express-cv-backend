@@ -138,3 +138,12 @@ CREATE TABLE IF NOT EXISTS faqs(
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS contact_us(
+  contact_us_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  email TEXT,
+  name TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
