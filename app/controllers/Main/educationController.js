@@ -302,7 +302,7 @@ exports.removeUserEducation = async (req, res) => {
     }
 }
 
-exports.getEducationById = async (req, res) => {
+exports.getEducationById = async (req,res)=>{
     const { education_id } = req.query;
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY

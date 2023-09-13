@@ -1328,3 +1328,79 @@ exports.getByYear = async (req, res) => {
         });
     }
 }
+exports.removeResumeEducation = async (req, res) => {
+    // const db = await pool.connect();
+    try {
+        // DESTRUCTURING DATA FROM BODY
+        const { education_id, resume_id } = req.body;
+        console.log(education_id, resume_id)
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!education_id || !resume_id) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, education_id and resume_id is required"
+            });
+        }
+
+        const query = 'UPDATE resumes SET educations = array_remove(educations, $1) WHERE resumes_id = $2 RETURNING *'
+        const educationUpdated = await pool.query(query, [education_id, resume_id]);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Education was not added in users because user does not exsist"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Education Added sucessfully",
+            results: educationUpdated.rows[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message,
+        });
+    }
+}
+exports.removeResumeExperience = async (req, res) => {
+    // const db = await pool.connect();
+    try {
+        // DESTRUCTURING DATA FROM BODY
+        const { experience_id, resume_id } = req.body;
+        console.log(experience_id, resume_id)
+        // CHECKING IF THE DATA IS AVAILABLE
+        if (!experience_id || !resume_id) {
+            return res.status(401).json({
+                status: false,
+                message: "can not make changes, experience_id and resume_id is required"
+            });
+        }
+
+        const query = 'UPDATE resumes SET work_experience = array_remove(work_experience, $1) WHERE resumes_id = $2 RETURNING *'
+        const educationUpdated = await pool.query(query, [experience_id, resume_id]);
+
+        // CHECKING IF THE DATA WAS NOT UPDATED SUCESSFULLY THEN SENDING RESPONSE WITH STATUS FALSE
+        if (!educationUpdated.rows[0]) {
+            return res.status(401).json({
+                status: false,
+                message: "Experience was not added in users because user does not exsist"
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Experience Added sucessfully",
+            results: educationUpdated.rows[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: err.message,
+        });
+    }
+}
