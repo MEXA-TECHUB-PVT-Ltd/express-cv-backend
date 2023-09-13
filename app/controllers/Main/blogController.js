@@ -47,7 +47,7 @@ exports.addBlog = async (req, res) => {
             error: err.messagefalse
         })
     }
-    
+
 
 }
 
@@ -124,7 +124,7 @@ exports.updateBlog = async (req, res) => {
             error: err.message
         })
     }
-    
+
 }
 
 exports.deleteBlog = async (req, res) => {
@@ -163,7 +163,7 @@ exports.deleteBlog = async (req, res) => {
             error: err.message
         })
     }
-    
+
 }
 
 exports.getAllBlogs = async (req, res) => {
@@ -211,6 +211,7 @@ exports.getAllBlogs = async (req, res) => {
         res.json({
             message: "Fetched",
             status: true,
+            count:result.rowCount,
             result: result.rows
         })
 
@@ -222,7 +223,7 @@ exports.getAllBlogs = async (req, res) => {
             error: err.message
         })
     }
-    
+
 
 }
 
@@ -261,7 +262,7 @@ exports.getBlogById = async (req, res) => {
             message: err.message
         })
     }
-    
+
 
 }
 exports.addSubHeadings = async (req, res) => {
@@ -274,12 +275,14 @@ exports.addSubHeadings = async (req, res) => {
                 message: "subHeadings are required"
             })
         }
+        let result = [];
         await Promise.all(subHeadings.map(async (item, index) => {
             if (item) {
                 const query = 'INSERT INTO sub_headings (heading,ddetails) VALUES ($1, $2) RETURNING *';
                 const postSUbHeading = await pool.query(query, [item.heading ? item.heading : '', item.details ? item.details : '']);
                 if (postSUbHeading.rowCount > 0) {
                     ids.push(postSUbHeading.rows[0].sub_headings_id)
+                    result.push(postSUbHeading.rows[0])
                 }
             }
         }))
@@ -287,7 +290,7 @@ exports.addSubHeadings = async (req, res) => {
         ids.map(async (item) => {
             const insertInBlogQuery = 'UPDATE blogs SET sub_headings = array_append(sub_headings, $1) WHERE blog_id = $2 RETURNING *;';
             const insertInBlog = await pool.query(insertInBlogQuery, [item, blog_id]);
-            if(insertInBlog.rowCount < 1){
+            if (insertInBlog.rowCount < 1) {
                 error = true
             }
         })
@@ -300,7 +303,8 @@ exports.addSubHeadings = async (req, res) => {
         }
         res.json({
             status: true,
-            message: "Sub Heading was added sucessfully"
+            message: "Sub Heading was added sucessfully",
+            result:result
         })
     } catch (error) {
         res.json({
@@ -309,6 +313,173 @@ exports.addSubHeadings = async (req, res) => {
         })
     }
 }
+
+exports.updateSubHeading = async (req, res) => {
+    try {
+        const sub_headings_id = req.body.sub_headings_id;
+        const heading = req.body.heading;
+        const ddetails = req.body.details;
+        if (!sub_headings_id) {
+            return (
+                res.json({
+                    message: "Please provide sub_headings_id ",
+                    status: false
+                })
+            )
+        }
+
+
+        let query = 'UPDATE sub_headings SET ';
+        let index = 2;
+        let values = [sub_headings_id];
+
+
+
+        if (heading) {
+            query += `heading = $${index} , `;
+            values.push(heading)
+            index++
+        }
+        if (ddetails) {
+            query += `ddetails = $${index} , `;
+            values.push(ddetails)
+            index++
+        }
+
+        query += 'WHERE sub_headings_id = $1 RETURNING*'
+        query = query.replace(/,\s+WHERE/g, " WHERE");
+
+        const result = await pool.query(query, values);
+
+        if (result.rows[0]) {
+            res.json({
+                message: "Updated",
+                status: true,
+                result: result.rows[0]
+            })
+        }
+        else {
+            res.json({
+                message: "Could not update . Record With this Id may not found or req.body may be empty",
+                status: false,
+            })
+        }
+
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+
+}
+exports.deleteSubHeading = async (req, res) => {
+    try {
+        const sub_headings_id = req.query.sub_headings_id;
+        if (!sub_headings_id) {
+            return (
+                res.json({
+                    message: "Please Provide sub_headings_id",
+                    status: false
+                })
+            )
+        }
+        const query = 'DELETE FROM sub_headings WHERE sub_headings_id = $1 RETURNING *';
+        const result = await pool.query(query, [sub_headings_id]);
+
+        if (result.rowCount > 0) {
+            res.status(200).json({
+                message: "Deletion successfull",
+                status: true,
+                deletedRecord: result.rows[0]
+            })
+        }
+        else {
+            res.status(404).json({
+                message: "Could not delete . Record With this Id may not found or req.body may be empty",
+                status: false,
+            })
+        }
+
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+
+}
+exports.getBlogSubHeadings = async (req, res) => {
+    const blog_id = req.query.blog_id;
+    try {
+        let limit = req.query.limit;
+        let page = req.query.page
+        if (!blog_id) {
+            return res.json({
+                status: false,
+                message: 'blog_id is required'
+            })
+        }
+        let result;
+        if (!page || !limit) {
+            const query = 'SELECT * FROM blogs where blog_id = $1'
+            result = await pool.query(query, [blog_id]);
+
+        }
+
+        if (page && limit) {
+            limit = parseInt(limit);
+            let offset = (parseInt(page) - 1) * limit
+
+            const query = 'SELECT * FROM blogs WHERE blog_id = $1 LIMIT $2 OFFSET $3'
+            result = await pool.query(query, [blog_id, limit, offset]);
+
+
+        }
+        console.log(result.rowCount)
+        if (result.rowCount < 1) {
+            res.json({
+                message: "Blog not found",
+                status: false
+            })
+        }
+        await Promise.all(
+            result.rows.map(async (results, index) => {
+                if (results.sub_headings !== null) {
+                    if (results.sub_headings.length > 0) {
+
+                        const sub_headingsQuery = 'SELECT * FROM sub_headings WHERE sub_headings_id IN (SELECT UNNEST($1::int[]))'
+                        const sub_headingsResults = await pool.query(sub_headingsQuery, [results.sub_headings])
+                        if (sub_headingsResults.rowCount > 0) {
+                            result.rows[index].sub_headings = sub_headingsResults.rows;
+                        }
+                    }
+                }
+            })
+        )
+        res.json({
+            message: "Fetched",
+            status: true,
+            count:result.rows[0].sub_headings.length,
+            result: result.rows[0].sub_headings
+        })
+
+    }
+    catch (err) {
+        res.json({
+            message: "Error",
+            status: false,
+            error: err.message
+        })
+    }
+
+
+}
+
 exports.getByDate = async (req, res) => {
     const { date } = req.query;
     try {

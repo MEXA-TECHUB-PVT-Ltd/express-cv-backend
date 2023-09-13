@@ -322,3 +322,90 @@ exports.removeUserExperience = async (req, res) => {
         });
     }
 }
+exports.addMultipleExperience = async (req, res) => {
+    const { experiences, user_id, resume_id } = req.body
+    try {
+        if (!experiences || !user_id) {
+            return res.json({
+                status: false,
+                message: 'experiences and user_id are required'
+            })
+        }
+        if (experiences.length < 1) {
+            return res.json({
+                status: false,
+                message: 'Empty experiences array'
+            })
+        }
+        let error = false;
+        let result = [];
+        let result1 = [];
+        await Promise.all(experiences.map(async (item, index) => {
+            if (item.work_experience_id) {
+                const deletePrevious = `DELETE FROM workExperience WHERE work_experience_id = $1 RETURNING*`
+                await pool.query(deletePrevious, [item.work_experience_id])
+                const query = 'INSERT INTO workExperience (title, location, started_from, ended_at, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.title ? item.title : '',
+                    item.location ? item.location : '',
+                    item.started_from ? item.started_from : '',
+                    item.ended_at ? item.ended_at : '',
+                    item.description ? item.description : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+                }
+                else {
+                    result.push(savedEducation.rows[0].work_experience_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+            else {
+                const query = 'INSERT INTO workExperience (title, location, started_from, ended_at, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.title ? item.title : '',
+                    item.location ? item.location : '',
+                    item.started_from ? item.started_from : '',
+                    item.ended_at ? item.ended_at : '',
+                    item.description ? item.description : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+
+                }
+                else {
+                    result.push(savedEducation.rows[0].work_experience_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+        }))
+        if (error) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        const addInResume = `UPDATE resumes SET work_experience = $1 WHERE resumes_id = $2 RETURNING*`
+        const addedResume = await pool.query(addInResume, [result, resume_id]);
+        if (addedResume.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'Added',
+            result: result1
+        })
+    } catch (err) {
+        return res.json({
+            status: false,
+            message: err.message
+        });
+    }
+}

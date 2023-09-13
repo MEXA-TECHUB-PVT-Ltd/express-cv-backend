@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS resumes (
   resumes_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   resume_template_id INT NOT NULL ,
   user_id INT NOT NULL ,
+  title TEXT,
   skills INT[] ,
   interests TEXT[],
   objective INT ,

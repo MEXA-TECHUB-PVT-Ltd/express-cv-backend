@@ -264,3 +264,83 @@ exports.getLanguageById = async (req, res) => {
         });
     }
 }
+exports.addMultipleLanguage = async (req, res) => {
+    const { languages, user_id, resume_id } = req.body
+    try {
+        if (!languages || !user_id) {
+            return res.json({
+                status: false,
+                message: 'languages and user_id are required'
+            })
+        }
+        if (languages.length < 1) {
+            return res.json({
+                status: false,
+                message: 'Empty languages array'
+            })
+        }
+        let error = false;
+        let result = [];
+        let result1 = [];
+        await Promise.all(languages.map(async (item, index) => {
+            if (item.language_id) {
+                const deletePrevious = `DELETE FROM languages WHERE language_id = $1 RETURNING*`
+                await pool.query(deletePrevious, [item.language_id])
+                const query = 'INSERT INTO languages (language, fluency, user_id) VALUES ($1, $2, $3) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.language ? item.language : '',
+                    item.fluency ? item.fluency : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+                }
+                else {
+                    result.push(savedEducation.rows[0].skill_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+            else {
+                const query = 'INSERT INTO languages (language, fluency, user_id) VALUES ($1, $2, $3) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.language ? item.language : '',
+                    item.fluency ? item.fluency : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+                }
+                else {
+                    result.push(savedEducation.rows[0].skill_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+        }))
+        if (error) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        const addInResume = `UPDATE resumes SET languages = $1 WHERE resumes_id = $2 RETURNING*`
+        const addedResume = await pool.query(addInResume, [result, resume_id]);
+        if (addedResume.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'Added',
+            result: result1
+        })
+    } catch (err) {
+        return res.json({
+            status: false,
+            message: err.message
+        });
+    }
+}
