@@ -45,25 +45,25 @@ exports.addSkill = async (req, res) => {
     }
 }
 exports.editSkill = async (req, res) => {
-    const {skill,level,skill_id} = req.body
+    const { skill, level, skill_id } = req.body
     try {
-        if(!skill_id){
+        if (!skill_id) {
             return res.json({
-                status:false,
-                message:'Skill id is required'
+                status: false,
+                message: 'Skill id is required'
             })
         }
-        const result = await pool.query(`UPDATE skills SET skill = $1, level = $2 WHERE skill_id = $3 RETURNING *`,[skill,level,skill_id])
-        if(result.rowCount<1){
+        const result = await pool.query(`UPDATE skills SET skill = $1, level = $2 WHERE skill_id = $3 RETURNING *`, [skill, level, skill_id])
+        if (result.rowCount < 1) {
             return res.json({
-                status:false,
-                message:'Skill not found'
+                status: false,
+                message: 'Skill not found'
             })
         }
         res.json({
-            status:true,
-            message:'Skill updated',
-            result:result.rows[0]
+            status: true,
+            message: 'Skill updated',
+            result: result.rows[0]
         })
     } catch (err) {
         return res.status(500).json({
@@ -73,25 +73,25 @@ exports.editSkill = async (req, res) => {
     }
 }
 exports.deleteSkill = async (req, res) => {
-    const {skill_id} = req.query
+    const { skill_id } = req.query
     try {
-        if(!skill_id){
+        if (!skill_id) {
             return res.json({
-                status:false,
-                message:'Skill id is required'
+                status: false,
+                message: 'Skill id is required'
             })
         }
-        const result = await pool.query(`DELETE FROM skills WHERE skill_id = $1 RETURNING *`,[skill_id])
-        if(result.rowCount<1){
+        const result = await pool.query(`DELETE FROM skills WHERE skill_id = $1 RETURNING *`, [skill_id])
+        if (result.rowCount < 1) {
             return res.json({
-                status:false,
-                message:'Skill not found'
+                status: false,
+                message: 'Skill not found'
             })
         }
         res.json({
-            status:true,
-            message:'Skill Deleted',
-            result:result.rows[0]
+            status: true,
+            message: 'Skill Deleted',
+            result: result.rows[0]
         })
     } catch (err) {
         return res.status(500).json({
@@ -152,30 +152,110 @@ exports.getUserSkill = async (req, res) => {
     }
 }
 exports.getSkillById = async (req, res) => {
-    const {skill_id} = req.query
+    const { skill_id } = req.query
     try {
-        if(!skill_id){
-            return  res.json({
-                status:false,
-                message:'Skill_id required'
+        if (!skill_id) {
+            return res.json({
+                status: false,
+                message: 'Skill_id required'
             })
         }
-        const result = await pool.query(`SELECT * FROM skills WHERE skill_id = $1`,[skill_id])
-        if(result.rowCount<1){
+        const result = await pool.query(`SELECT * FROM skills WHERE skill_id = $1`, [skill_id])
+        if (result.rowCount < 1) {
             return res.json({
-                status:false,
-                message:'Skill not found'
+                status: false,
+                message: 'Skill not found'
             })
         }
         res.json({
-            status:true,
-            message:'Skill found',
-            result:result.rows[0]
+            status: true,
+            message: 'Skill found',
+            result: result.rows[0]
         })
     } catch (err) {
         return res.status(500).json({
             status: false,
             message: "Internal server error"
+        });
+    }
+}
+exports.addMultipleSkill = async (req, res) => {
+    const { skills, user_id, resume_id } = req.body
+    try {
+        if (!skills || !user_id) {
+            return res.json({
+                status: false,
+                message: 'skills and user_id are required'
+            })
+        }
+        if (skills.length < 1) {
+            return res.json({
+                status: false,
+                message: 'Empty skills array'
+            })
+        }
+        let error = false;
+        let result = [];
+        let result1 = [];
+        await Promise.all(skills.map(async (item, index) => {
+            if (item.skill_id) {
+                const deletePrevious = `DELETE FROM skills WHERE skill_id = $1 RETURNING*`
+                await pool.query(deletePrevious, [item.skill_id])
+                const query = 'INSERT INTO skills (skill, level, user_id) VALUES ($1, $2, $3) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.skill ? item.skill : '',
+                    item.level ? item.level : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+                }
+                else {
+                    result.push(savedEducation.rows[0].skill_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+            else {
+                const query = 'INSERT INTO skills (skill, level, user_id) VALUES ($1, $2, $3) RETURNING *';
+                // ADDING THE DATA USING QUERY ABOVE
+                const savedEducation = await pool.query(query, [
+                    item.skill ? item.skill : '',
+                    item.level ? item.level : '',
+                    user_id ? user_id : ''
+                ]);
+                if (savedEducation.rowCount < 1) {
+                    error = true
+                }
+                else {
+                    result.push(savedEducation.rows[0].skill_id)
+                    result1.push(savedEducation.rows[0])
+                }
+            }
+        }))
+        if (error) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        const addInResume = `UPDATE resumes SET skills = $1 WHERE resumes_id = $2 RETURNING*`
+        const addedResume = await pool.query(addInResume, [result, resume_id]);
+        if (addedResume.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'could not add'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'Added',
+            result: result1
+        })
+    } catch (err) {
+        return res.json({
+            status: false,
+            message: err.message
         });
     }
 }

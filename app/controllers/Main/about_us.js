@@ -2,7 +2,6 @@ const {pool} = require('../../config/db.config');
 
 
 exports.add_aboutus = async(req,res)=>{
-    const client = await pool.connect();
     try{
         const text = req.body.text ;
         const query= 'INSERT INTO about_us (text) Values ($1) RETURNING *'
@@ -29,14 +28,11 @@ exports.add_aboutus = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 
 exports.getAlladd_aboutus= async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const query = 'SELECT * FROM about_us';
@@ -65,13 +61,10 @@ exports.getAlladd_aboutus= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.viewAboutUs = async(req,res)=>{
-    const client = await pool.connect();
     try{
         const about_us_id = req.query.about_us_id;
         const query = 'SELECT * FROM about_us WHERE about_us_id= $1';
@@ -100,14 +93,10 @@ exports.viewAboutUs = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.viewActiveAboutUs = async(req,res)=>{
-    const client = await pool.connect();
-
     try{
         const query = 'SELECT * FROM about_us WHERE status = $1';
 
@@ -135,14 +124,10 @@ exports.viewActiveAboutUs = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.updateAboutUs= async(req,res)=>{
-    const client = await pool.connect();
-
     try{
         const about_us_id = req.body.about_us_id;
         const text = req.body.text;
@@ -173,13 +158,10 @@ exports.updateAboutUs= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.updateStatus= async(req,res)=>{
-    const client = await pool.connect();
     try{
         const about_us_id = req.body.about_us_id;
         const status = req.body.status ;
@@ -219,7 +201,5 @@ exports.updateStatus= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }

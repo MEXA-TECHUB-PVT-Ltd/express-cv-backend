@@ -1,7 +1,6 @@
 const hairStylesUpload = require("../../middlewares/imageUpload")
 const {pool}= require('../../config/db.config')
 exports.uploadImage = async (req,res)=>{
-  const client = await pool.connect();
     try{
         hairStylesUpload(req, res, function (err) {
    
@@ -24,9 +23,5 @@ exports.uploadImage = async (req,res)=>{
     catch(err){
         res.json(err)
     }
-
-finally {
-  client.release();
-}
 }
 

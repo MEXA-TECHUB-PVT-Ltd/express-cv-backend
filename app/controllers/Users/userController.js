@@ -132,35 +132,36 @@ exports.signInUser = async (req, res) => {
 exports.getUserData = async (req, res) => {
     const { current_user_id } = req.query;
     try {
+        let userData;
         if (!current_user_id) {
-            return res.status(401).json({
-                status: false,
-                message: "User_id is required"
-            });
+            const query = 'SELECT * FROM users';
+            userData = await pool.query(query);
         }
-        const query = 'SELECT * FROM users WHERE user_id = $1';
-        const userData = await pool.query(query, [current_user_id]);
-        
+        else {
+            const query = 'SELECT * FROM users WHERE user_id = $1';
+            userData = await pool.query(query, [current_user_id]);
+        }
+
         if (!userData.rows[0]) {
             return res.status(401).json({
                 status: false,
-                message: "User Does not exsists"
+                message: "No data found"
             });
         }
         await Promise.all(userData.rows.map(async (userDat, index) => {
             // CHECKING IF RESUME HAS work_experience ARRAY THEN FETECHING DATA FOR EACH work_experience ID
-            if(userDat.experience){
+            if (userDat.experience) {
                 if (userDat.experience.length > 0) {
                     const work_experienceQuery = 'SELECT * FROM workExperience WHERE work_experience_id IN (SELECT UNNEST($1::int[]))'
                     const work_experienceData = await pool.query(work_experienceQuery, [userDat.experience]);
-                    
+
                     if (work_experienceData.rows[0]) {
                         userData.rows[index].experience = work_experienceData.rows;
                     }
                 }
             }
             // CHECKING IF RESUME HAS educations ARRAY THEN FETECHING DATA FOR EACH educations ID
-            if(userDat.education){
+            if (userDat.education) {
                 if (userDat.education.length > 0) {
                     const educationsQuery = 'SELECT * FROM educations WHERE education_id IN (SELECT UNNEST($1::int[]))'
                     const educationsData = await pool.query(educationsQuery, [userDat.education]);
@@ -173,7 +174,7 @@ exports.getUserData = async (req, res) => {
         res.json({
             status: true,
             message: "Data Fetched sucessfully",
-            results: userData.rows[0]
+            results: userData.rows
         })
     } catch (err) {
         return res.status(500).json({
@@ -196,7 +197,7 @@ exports.forgetPassword = async (req, res) => {
         if (findUSer.rowCount < 1) {
             return res.status(401).json({
                 status: false,
-                message: "Invalid Email Address"
+                message: "Unregistered Email"
             });
         }
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
@@ -315,8 +316,12 @@ exports.resetPassword = async (req, res) => {
                 message: "The request can not be completed because otp could not be verified"
             })
         }
+        const salt = await bcrypt.genSalt(10);
+
+        // password hashing
+        const hashPassword = await bcrypt.hash(password, salt);
         const query1 = 'UPDATE users SET password = $1  WHERE email = $2 RETURNING *'
-        const updatePassword = await pool.query(query1, [password, getOtpUser.rows[0].email])
+        const updatePassword = await pool.query(query1, [hashPassword, getOtpUser.rows[0].email])
         if (updatePassword.rowCount < 1) {
             return res.json({
                 status: false,
@@ -410,27 +415,27 @@ exports.updateUserInfo = async (req, res) => {
                 message: 'User_name or Phone is required to update data'
             })
         }
-        
+
         if (user_name === '') {
             return res.json({
                 status: false,
                 message: 'User_name can not be empty'
             })
         }
-        if(user_name && phone){
+        if (user_name && phone) {
             query = 'UPDATE users SET user_name =$2, phone = $3 WHERE user_id = $1 RETURNING *';
-            values=[user_id, user_name, phone]
+            values = [user_id, user_name ? user_name : '', phone ? phone : '']
         }
-        if(user_name && !phone){
+        if (user_name && !phone) {
             query = 'UPDATE users SET user_name = $2 WHERE user_id = $1 RETURNING *';
-            values=[user_id, user_name]
+            values = [user_id, user_name ? user_name : '']
         }
-        if(!user_name && phone){
+        if (!user_name && phone) {
             query = 'UPDATE users SET phone = $2 WHERE user_id = $1 RETURNING *';
-            values=[user_id, phone]
+            values = [user_id, phone ? phone : '']
         }
         const updatedData = await pool.query(query, values);
-        if(updatedData.rowCount < 1){
+        if (updatedData.rowCount < 1) {
             return res.json({
                 status: false,
                 message: 'User with this User_id does not exsists'
@@ -448,26 +453,66 @@ exports.updateUserInfo = async (req, res) => {
         });
     }
 }
-exports.uploadImage = async (req,res)=>{
+exports.uploadImage = async (req, res) => {
     const path = req.file.path;
     const user_id = req.query.user_id;
-    if(!path || !user_id){
+    if (!path || !user_id) {
         return res.json({
-            status:false,
-            message:"path or user_id not found"
+            status: false,
+            message: "path or user_id not found"
         })
     }
     const query = 'UPDATE users SET profile_img = $1 WHERE user_id = $2 RETURNING *'
-    const updateUserImage = await pool.query(query, [path,user_id]);
-    if(updateUserImage.rowCount < 1){
+    const updateUserImage = await pool.query(query, [path, user_id]);
+    if (updateUserImage.rowCount < 1) {
         return res.json({
-            status:false,
-            message:"user_id was not found"
+            status: false,
+            message: "user_id was not found"
         })
     }
     res.json({
         status: true,
-        message:'Image Uploaded Sucessfully',
+        message: 'Image Uploaded Sucessfully',
         results: path
     })
+}
+exports.changeBlockStatus = async (req, res) => {
+    const status = req.query.block_status
+    const user_id = req.query.user_id
+    try {
+        let result;
+        if (!status || !user_id) {
+            return res.json({
+                status: false,
+                message: 'Status and user_id is required'
+            })
+        }
+        if (status != 'block' && status != 'unblock') {
+            return res.json({
+                status: false,
+                message: 'Status can only be block or unblock'
+            })
+        }
+        if (status == 'block') {
+            const query = `UPDATE users SET status = $1 WHERE user_id = $2 RETURNING*`
+            result = await pool.query(query, ['block', user_id])
+        }
+        else {
+            const query = `UPDATE users SET status = $1 WHERE user_id = $2 RETURNING*`
+            result = await pool.query(query, ['unblock', user_id])
+        }
+        if (result.rowCount < 1) {
+            return res.json({
+                status: false,
+                message: 'User with this id does not exists'
+            })
+        }
+        res.json({
+            status: true,
+            message: 'Status updated',
+            result: result.rows[0]
+        })
+    } catch (err) {
+
+    }
 }

@@ -2,8 +2,8 @@ const { pool } = require("../../config/db.config");
 exports.addPersonalInfo = async (req, res) => {
 
     try {
-        const { email, address, phone, name, user_id } = req.body;
-        console.log(email, address, phone, name, user_id)
+
+        const { email, address, phone, name, user_id, license } = req.body;
         // CHECKING IF DATA IS NOT AVAILABLE RETURNING THE RESPONSE WITH STATUS FALSE
         if (!email || !address || !phone || !name || !user_id) {
             return res.status(401).json({

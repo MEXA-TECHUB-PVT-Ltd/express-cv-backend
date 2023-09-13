@@ -2,7 +2,6 @@ const {pool} = require('../../config/db.config');
 
 
 exports.addPrivacyPolicy = async(req,res)=>{
-    const client = await pool.connect();
     try{
         const text = req.body.text ;
         const query= 'INSERT INTO privacy_policy (text) Values ($1) RETURNING *'
@@ -29,15 +28,12 @@ exports.addPrivacyPolicy = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
     
 }
 
 
 exports.getAllPrivacyPlicies = async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const query = 'SELECT * FROM privacy_policy';
@@ -66,13 +62,10 @@ exports.getAllPrivacyPlicies = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
 }
 
 exports.viewPrivacyPolicy = async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const privacy_policy_id = req.query.privacy_policy_id;
@@ -102,13 +95,10 @@ exports.viewPrivacyPolicy = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
 }
 
 exports.viewActivePrivacyPolicy = async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const query = 'SELECT * FROM privacy_policy WHERE status = $1';
@@ -137,13 +127,10 @@ exports.viewActivePrivacyPolicy = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
 }
 
 exports.updatePrivacyPolicy= async(req,res)=>{
-    const client = await pool.connect();
 
     
     try{
@@ -176,13 +163,10 @@ exports.updatePrivacyPolicy= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
 }
 
 exports.updateStatus= async(req,res)=>{
-    const client = await pool.connect();
 
     try{
         const privacy_policy_id = req.body.privacy_policy_id;
@@ -223,7 +207,5 @@ exports.updateStatus= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+
 }

@@ -15,9 +15,6 @@ const transporter = nodemailer.createTransport({
 
 
 exports.sendEmail = async (req, res) => {
-    const client = await pool.connect();
-
-    
     try {
         const email = req.body.email;
 
@@ -32,7 +29,7 @@ exports.sendEmail = async (req, res) => {
             const found_email_query = 'SELECT * FROM admins WHERE email = $1'
             const foundResult = await pool.query(found_email_query, [email])
 
-            if (foundResult) {
+            if (foundResult.rowCount > 0) {
                 sendOTPVerificationEmail(foundResult.rows[0].email, res)
             }
             else {
@@ -53,13 +50,9 @@ exports.sendEmail = async (req, res) => {
         })
     }
 
-finally {
-    client.release();
-  }
 }
 
 exports.verifyOTP = async (req,res)=>{
-    const client = await pool.connect();
     try{
         const email = req.body.email;
         const otp = req.body.otp;
@@ -87,10 +80,6 @@ exports.verifyOTP = async (req,res)=>{
           success:false,
         });
       }
-
-finally {
-    client.release();
-  }
 }
 
 

@@ -4,12 +4,19 @@ CREATE TABLE IF NOT EXISTS users (
   user_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   user_name TEXT  ,
   email TEXT UNIQUE NOT NULL ,
-  phone Number ,
+  phone TEXT ,
   profile_img TEXT ,
   education INT[],
   experience INT[],
   password TEXT NOT NULL ,
-  block BOOLEAN DEFAULT false
+  status TEXT DEFAULT 'unblock'
+);
+CREATE TABLE IF NOT EXISTS admins (
+  admin_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  img TEXT  ,
+  user_name TEXT ,
+  email TEXT ,
+  password TEXT
 );
 CREATE TABLE IF NOT EXISTS objectives(
     objective_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -63,14 +70,23 @@ CREATE TABLE IF NOT EXISTS resumes (
   resumes_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   resume_template_id INT NOT NULL ,
   user_id INT NOT NULL ,
+  title TEXT,
   skills INT[] ,
   interests TEXT[],
   objective INT ,
   personal_info INT ,
   languages INT[] ,
   work_experience INT[] ,
-  educations INT[] 
-  
+  educations INT[] ,
+  created_at DATE DEFAULT NOW(),
+  updated_at DATE DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS resume_downloads (
+  resume_downloads_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  resume_id INT ,
+  user_id INT ,
+  created_at DATE DEFAULT NOW(),
+  updated_at DATE DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS otpStored(
   otp_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY ,
@@ -104,7 +120,9 @@ CREATE TABLE IF NOT EXISTS blogs(
 CREATE TABLE IF NOT EXISTS sub_headings(
   sub_headings_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
   heading TEXT,
-  ddetails TEXT
+  ddetails TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS about_us(
   about_us_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
@@ -120,4 +138,13 @@ CREATE TABLE IF NOT EXISTS faqs(
   answer TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
-)
+);
+CREATE TABLE IF NOT EXISTS contact_us(
+  contact_us_id INT NOT NULL DEFAULT nextval('my_sequence') PRIMARY KEY,
+  email TEXT,
+  name TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);

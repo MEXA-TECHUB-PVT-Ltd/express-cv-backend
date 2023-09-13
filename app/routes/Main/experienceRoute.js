@@ -10,5 +10,5 @@ workExperienceRouter.get("/get-user-workExperience", controller.getUserWorkExper
 workExperienceRouter.put("/add-user-workExperience", controller.addUserExperience);
 workExperienceRouter.put("/remove-user-workExperience", controller.removeUserExperience);
 workExperienceRouter.get("/get-workExperience-by-id", controller.getWorkExperienceById);
-
+workExperienceRouter.put("/addMultipleExperience", controller.addMultipleExperience);
 module.exports = workExperienceRouter;

@@ -4,7 +4,7 @@ const {pool} = require('../../config/db.config');
 
 
 exports.addTermsAndConditions = async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const text = req.body.text ;
         const query= 'INSERT INTO terms_and_condtions (text) Values ($1) RETURNING *'
@@ -31,15 +31,13 @@ exports.addTermsAndConditions = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
     
 }
 
 
 exports.getAllTermsAndConditions = async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const query = 'SELECT * FROM terms_and_condtions';
 
@@ -67,13 +65,11 @@ exports.getAllTermsAndConditions = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.viewTermsAndCondition = async(req,res)=>{
-    const client = await pool.connect();
+    
 
     try{
         const term_condition_id = req.query.term_condition_id;
@@ -103,13 +99,11 @@ exports.viewTermsAndCondition = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.viewActiveTermsAndCondition = async(req,res)=>{
-    const client = await pool.connect();
+    
 
     try{
         const query = 'SELECT * FROM terms_and_condtions WHERE status = $1';
@@ -137,13 +131,11 @@ exports.viewActiveTermsAndCondition = async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.updateTermsAndCondition= async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const terms_and_condition_id = req.body.terms_and_condition_id;
         const text = req.body.text;
@@ -174,13 +166,11 @@ exports.updateTermsAndCondition= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
 
 exports.updateStatus= async(req,res)=>{
-    const client = await pool.connect();
+    
     try{
         const terms_and_condition_id = req.body.terms_and_condition_id;
         const status = req.body.status ;
@@ -220,7 +210,5 @@ exports.updateStatus= async(req,res)=>{
             error: err.message
         })
     }
-    finally {
-        client.release();
-      }
+    
 }
