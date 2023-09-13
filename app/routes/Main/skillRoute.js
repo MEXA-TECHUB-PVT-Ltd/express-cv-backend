@@ -8,5 +8,5 @@ skillsRouter.delete("/delete-skill", controller.deleteSkill);
 skillsRouter.get("/get-all-skills");
 skillsRouter.get("/get-user-skills", controller.getUserSkill);
 skillsRouter.get("/get-skills-by-id", controller.getSkillById);
-
+skillsRouter.put("/addMultipleSkill", controller.addMultipleSkill);
 module.exports = skillsRouter;

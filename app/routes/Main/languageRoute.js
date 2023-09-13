@@ -8,5 +8,5 @@ languagesRouter.delete("/delete-language", controller.deleteLanguage);
 languagesRouter.get("/get-all-languages", controller.getAllLanguage);
 languagesRouter.get("/get-user-languages", controller.getUserLanguage);
 languagesRouter.get("/get-languages-by-id", controller.getLanguageById);
-
+languagesRouter.put("/addMultipleLanguage", controller.addMultipleLanguage);
 module.exports = languagesRouter;

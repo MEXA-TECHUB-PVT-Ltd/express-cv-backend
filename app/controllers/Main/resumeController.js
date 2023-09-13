@@ -2,15 +2,15 @@ const { query } = require("express");
 const { pool } = require("../../config/db.config");
 exports.addResumes = async (req, res) => {
     try {
-        const { resume_template_id, user_id } = req.body;
+        const { resume_template_id, user_id, title } = req.body;
         if (!user_id || !resume_template_id) {
             return res.status(401).json({
                 status: false,
                 message: "user_id and resume_template_id are required"
             });
         }
-        const query = 'INSERT INTO resumes (resume_template_id, user_id) VALUES ($1, $2) RETURNING *'
-        const savedResumes = await pool.query(query, [resume_template_id, user_id]);
+        const query = 'INSERT INTO resumes (resume_template_id, user_id, title) VALUES ($1, $2, $3) RETURNING *'
+        const savedResumes = await pool.query(query, [resume_template_id, user_id, title ? title :null]);
         if (!savedResumes.rows[0]) {
             return res.status(401).json({
                 status: false,
@@ -166,14 +166,14 @@ exports.getAll = async (req, res) => {
 
 exports.updateResumes = async (req, res) => {
     try {
-        const { resume_id, skills, objective, personal_info, languages, work_experience, educations, interests } = req.body;
+        const { resume_id, skills, objective, personal_info, languages, work_experience, educations, interests,title } = req.body;
         if (!resume_id) {
             return res.status(401).json({
                 status: false,
                 message: "resume_id is required"
             });
         }
-        if (skills || objective || personal_info || languages || work_experience || educations || interests) {
+        if (skills || objective || personal_info || languages || work_experience || educations || interests || title) {
 
         }
         else {
@@ -194,7 +194,12 @@ exports.updateResumes = async (req, res) => {
             values.push(skills)
             index++
         }
-
+        if (title) {
+            // SETTING UP TITLE IN QUERY
+            query += `title =$${index} , `;
+            values.push(title)
+            index++
+        }
         if (objective) {
             // SETTING UP TITLE IN QUERY
             query += `objective = $${index} , `;

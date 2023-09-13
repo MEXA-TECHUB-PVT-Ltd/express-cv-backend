@@ -11,6 +11,9 @@ router.delete("/deleteBlog" , controller.deleteBlog);
 router.get("/getAllBlogs" , controller.getAllBlogs);
 router.get("/getBlogById" , controller.getBlogById);
 router.post("/addSubHeading" , controller.addSubHeadings);
+router.put("/updateSubHeading" , controller.updateSubHeading);
+router.delete("/deleteSubHeading" , controller.deleteSubHeading);
+router.get("/getBlogSubHeadings" , controller.getBlogSubHeadings);
 
 router.get("/getByDate" , controller.getByDate);
 router.get("/getByWeek" , controller.getByWeek);
