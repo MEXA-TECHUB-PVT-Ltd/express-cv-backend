@@ -101,9 +101,20 @@ exports.deleteSkill = async (req, res) => {
     }
 }
 exports.getAllSkill = async (req, res) => {
-    const db = await pool.connect();
     try {
-
+        const query = `SELECT * FROM skills`;
+        const result = await pool.query(query);
+        if(result.rowCount<1){
+            return res.json({
+                status:false,
+                message:'No data found'
+            })
+        }
+        return res.json({
+            status:true,
+            message:'Fetched',
+            result:result.rows
+        })
     } catch (err) {
         return res.status(500).json({
             status: false,
