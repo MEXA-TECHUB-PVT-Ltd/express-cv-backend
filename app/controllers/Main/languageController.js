@@ -1,7 +1,5 @@
 const { pool } = require("../../config/db.config");
 exports.addLanguage = async (req, res) => {
-    // CONNECTING TO DB
-    // const db = await pool.connect();
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { language, fluency, user_id } = req.body;
@@ -313,7 +311,7 @@ exports.addMultipleLanguage = async (req, res) => {
                     error = true
                 }
                 else {
-                    result.push(savedEducation.rows[0].skill_id)
+                    result.push(savedEducation.rows[0].language_id)
                     result1.push(savedEducation.rows[0])
                 }
             }

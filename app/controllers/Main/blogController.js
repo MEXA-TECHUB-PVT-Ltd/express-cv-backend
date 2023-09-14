@@ -211,7 +211,7 @@ exports.getAllBlogs = async (req, res) => {
         res.json({
             message: "Fetched",
             status: true,
-            count:result.rowCount,
+            count: result.rowCount,
             result: result.rows
         })
 
@@ -269,10 +269,10 @@ exports.addSubHeadings = async (req, res) => {
     const { subHeadings, blog_id } = req.body;
     try {
         let ids = [];
-        if (!subHeadings) {
+        if (!subHeadings || !blog_id) {
             return res.json({
                 status: false,
-                message: "subHeadings are required"
+                message: "subHeadings and blog_id are required"
             })
         }
         let result = [];
@@ -287,13 +287,14 @@ exports.addSubHeadings = async (req, res) => {
             }
         }))
         let error = false
-        ids.map(async (item) => {
+        await Promise.all(
+            ids.map(async (item) => {
             const insertInBlogQuery = 'UPDATE blogs SET sub_headings = array_append(sub_headings, $1) WHERE blog_id = $2 RETURNING *;';
             const insertInBlog = await pool.query(insertInBlogQuery, [item, blog_id]);
             if (insertInBlog.rowCount < 1) {
                 error = true
             }
-        })
+        }))
 
         if (error) {
             return res.json({
@@ -304,7 +305,7 @@ exports.addSubHeadings = async (req, res) => {
         res.json({
             status: true,
             message: "Sub Heading was added sucessfully",
-            result:result
+            result: result
         })
     } catch (error) {
         res.json({
@@ -313,7 +314,6 @@ exports.addSubHeadings = async (req, res) => {
         })
     }
 }
-
 exports.updateSubHeading = async (req, res) => {
     try {
         const sub_headings_id = req.body.sub_headings_id;
@@ -464,7 +464,7 @@ exports.getBlogSubHeadings = async (req, res) => {
         res.json({
             message: "Fetched",
             status: true,
-            count:result.rows[0].sub_headings.length,
+            count: result.rows[0].sub_headings.length,
             result: result.rows[0].sub_headings
         })
 
@@ -479,7 +479,6 @@ exports.getBlogSubHeadings = async (req, res) => {
 
 
 }
-
 exports.getByDate = async (req, res) => {
     const { date } = req.query;
     try {
