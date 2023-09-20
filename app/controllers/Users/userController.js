@@ -30,7 +30,7 @@ exports.createUser = async (req, res) => {
 
         // checking if the user with this email already exsists
         const query1 = 'SELECT * FROM users WHERE email = $1'
-        const checkUser = await db.query(query1, [
+        const checkUser = await pool.query(query1, [
             email,
         ]);
         if (checkUser.rows.length > 0) {
@@ -48,7 +48,7 @@ exports.createUser = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, salt);
 
         // saving data in db
-        const addUser = await db.query(query, [
+        const addUser = await pool.query(query, [
             user_name,
             email,
             hashPassword
@@ -88,7 +88,7 @@ exports.signInUser = async (req, res) => {
         const query = 'SELECT * FROM users WHERE email = $1'
 
         // feteching data from db using query above
-        const checkUser = await db.query(query, [
+        const checkUser = await pool.query(query, [
             email,
         ]);
 

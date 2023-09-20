@@ -439,7 +439,7 @@ exports.getResumesById = async (req, res) => {
         const query = 'SELECT * FROM resumes WHERE resumes_id = $1';
 
         // FETCHING RESUME FROM DB
-        const resume = await db.query(query, [resume_id]);
+        const resume = await pool.query(query, [resume_id]);
 
         // CHECKING IF THE RESUME IS NOT FETECHED THEN SENDING RESPONSE WITH STATUS FALSE
         if (!resume.rows[0]) {

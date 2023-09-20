@@ -149,7 +149,7 @@ exports.deleteEducation = async (req, res) => {
         const query = 'DELETE FROM educations WHERE education_id = $1';
 
         // DELETING DATA IN DB USING QUERY ABOVE
-        const educationDeleted = await db.query(query, [
+        const educationDeleted = await pool.query(query, [
             education_id
         ]);
 
@@ -201,7 +201,7 @@ exports.getUserEducation = async (req, res) => {
         const query = 'SELECT * FROM educations WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const educations = await db.query(query, [user_id]);
+        const educations = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!educations.rows[0]) {

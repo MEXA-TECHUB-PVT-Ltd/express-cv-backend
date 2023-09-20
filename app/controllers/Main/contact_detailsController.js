@@ -186,7 +186,7 @@ exports.getUserPersonalInfo = async (req, res) => {
         const query = 'SELECT * FROM personal_info WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const personalInfo = await db.query(query, [user_id]);
+        const personalInfo = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!personalInfo.rows[0]) {
@@ -226,7 +226,7 @@ exports.getPersonalInfoById = async (req, res) => {
         const query = 'SELECT * FROM personal_info WHERE personal_info_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const personalInfo = await db.query(query, [personal_info_id]);
+        const personalInfo = await pool.query(query, [personal_info_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!personalInfo.rows[0]) {
