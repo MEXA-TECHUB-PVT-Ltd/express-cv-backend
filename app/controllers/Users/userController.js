@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 });
 exports.createUser = async (req, res) => {
     // connect to database
-    const db = await pool.connect();
+    
     try {
         // destructure from request body
 
@@ -71,7 +71,7 @@ exports.createUser = async (req, res) => {
 }
 exports.signInUser = async (req, res) => {
     // Connecting to db
-    const db = await pool.connect();
+    
     try {
         // destructure from request body
         const { email, password } = req.body;

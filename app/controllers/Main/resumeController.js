@@ -421,7 +421,7 @@ exports.getUserResumes = async (req, res) => {
 }
 exports.getResumesById = async (req, res) => {
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // DESTRUCTURING DATA FROM REQUEST QUERY
@@ -600,7 +600,7 @@ exports.deleteResume = async (req, res) => {
     }
 }
 exports.removeResumeEducation = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { education_id, resume_id } = req.body;
@@ -638,7 +638,7 @@ exports.removeResumeEducation = async (req, res) => {
     }
 }
 exports.removeResumeExperience = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { experience_id, resume_id } = req.body;

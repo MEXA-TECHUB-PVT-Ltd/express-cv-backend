@@ -1,6 +1,6 @@
 const { pool } = require("../../config/db.config");
 exports.addEducation = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { title, institute, started_from, ended_at, description, user_id } = req.body;
@@ -52,7 +52,7 @@ exports.addEducation = async (req, res) => {
     }
 }
 exports.updateEducation = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { title, institute, started_from, ended_at, description, education_id } = req.body;
@@ -132,7 +132,7 @@ exports.updateEducation = async (req, res) => {
     }
 }
 exports.deleteEducation = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { education_id } = req.query;
@@ -174,7 +174,7 @@ exports.deleteEducation = async (req, res) => {
     }
 }
 exports.getAllEducation = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
 
     } catch (err) {
@@ -185,7 +185,6 @@ exports.getAllEducation = async (req, res) => {
     }
 }
 exports.getUserEducation = async (req, res) => {
-    const db = await pool.connect();
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
@@ -226,7 +225,7 @@ exports.getUserEducation = async (req, res) => {
     }
 }
 exports.addUserEducation = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { education_id, user_id } = req.body;
@@ -264,7 +263,7 @@ exports.addUserEducation = async (req, res) => {
     }
 }
 exports.removeUserEducation = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { education_id, user_id } = req.body;

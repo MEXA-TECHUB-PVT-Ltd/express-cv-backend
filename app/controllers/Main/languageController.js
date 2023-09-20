@@ -110,7 +110,7 @@ exports.updateLanguage = async (req, res) => {
     }
 }
 exports.deleteLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { language_id } = req.query;
@@ -152,7 +152,7 @@ exports.deleteLanguage = async (req, res) => {
     }
 }
 exports.getAllLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // SETTING UP QUERY TO FETCH ALL DATA FROM DB
         const query = 'SELECT * FROM languages';
@@ -182,7 +182,7 @@ exports.getAllLanguage = async (req, res) => {
     }
 }
 exports.getUserLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
@@ -223,7 +223,7 @@ exports.getUserLanguage = async (req, res) => {
     }
 }
 exports.getLanguageById = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { language_id } = req.query;

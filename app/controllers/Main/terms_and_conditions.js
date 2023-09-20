@@ -2,7 +2,6 @@
 
 const {pool} = require('../../config/db.config');
 
-
 exports.addTermsAndConditions = async(req,res)=>{
     
     try{

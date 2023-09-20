@@ -121,7 +121,7 @@ exports.updateObjective = async (req, res) => {
 }
 exports.deleteObjective = async (req, res) => {
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // DESTRUCTURE FROM REQUEST BODY
@@ -166,7 +166,7 @@ exports.deleteObjective = async (req, res) => {
 }
 exports.getAllObjective = async (req, res) => {
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // SETTING UP QUERY TO FETCH ALL DATA FROM DB
@@ -201,7 +201,7 @@ exports.getAllObjective = async (req, res) => {
 exports.getUserObjective = async (req, res) => {
 
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -244,7 +244,7 @@ exports.getUserObjective = async (req, res) => {
 exports.getObjectiveById = async (req, res) => {
 
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { objective_id } = req.query;

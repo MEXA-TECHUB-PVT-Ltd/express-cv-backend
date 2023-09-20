@@ -148,8 +148,7 @@ exports.deletePersonalInfo = async (req, res) => {
     }
 }
 exports.getAllPersonalInfo = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         const query = `SELECT * FROM personal_info`
         const results = await pool.query(query)
         if (results.rowCount < 1) {
@@ -171,8 +170,7 @@ exports.getAllPersonalInfo = async (req, res) => {
     }
 }
 exports.getUserPersonalInfo = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
 
@@ -212,8 +210,7 @@ exports.getUserPersonalInfo = async (req, res) => {
     }
 }
 exports.getPersonalInfoById = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { personal_info_id } = req.query;
 
