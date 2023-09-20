@@ -34,7 +34,7 @@ exports.postResume = async (req,res)=>{
     }
 }
 exports.getAllResumes = async (req,res)=>{
-    // const db = await pool.connect()
+    // 
     try {
         const query = 'SELECT * FROM templates'
         const templates = await pool.query(query)

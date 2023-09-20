@@ -110,7 +110,7 @@ exports.updateLanguage = async (req, res) => {
     }
 }
 exports.deleteLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE FROM REQUEST BODY
         const { language_id } = req.query;
@@ -127,7 +127,7 @@ exports.deleteLanguage = async (req, res) => {
         const query = 'DELETE FROM languages WHERE language_id = $1';
 
         // DELETING DATA IN DB USING QUERY ABOVE
-        const languageUpdated = await db.query(query, [
+        const languageUpdated = await pool.query(query, [
             language_id
         ]);
 
@@ -152,13 +152,13 @@ exports.deleteLanguage = async (req, res) => {
     }
 }
 exports.getAllLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // SETTING UP QUERY TO FETCH ALL DATA FROM DB
         const query = 'SELECT * FROM languages';
 
         // FETCHING ALL DATA FROM DB USING QUERY ABOVE
-        const allLanguages = await db.query(query);
+        const allLanguages = await pool.query(query);
 
         // CHECKING IF THE DATA WAS NOT FOUND SENDING RESPONSE WITH STATUS FALSE
         if (!allLanguages.rows[0]) {
@@ -182,7 +182,7 @@ exports.getAllLanguage = async (req, res) => {
     }
 }
 exports.getUserLanguage = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
@@ -199,7 +199,7 @@ exports.getUserLanguage = async (req, res) => {
         const query = 'SELECT * FROM languages WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const userLanguages = await db.query(query, [user_id]);
+        const userLanguages = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!userLanguages.rows[0]) {
@@ -223,7 +223,7 @@ exports.getUserLanguage = async (req, res) => {
     }
 }
 exports.getLanguageById = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { language_id } = req.query;
@@ -239,7 +239,7 @@ exports.getLanguageById = async (req, res) => {
         const query = 'SELECT * FROM languages WHERE language_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const allLanguages = await db.query(query, [language_id]);
+        const allLanguages = await pool.query(query, [language_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!allLanguages.rows[0]) {

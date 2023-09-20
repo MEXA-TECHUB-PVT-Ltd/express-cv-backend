@@ -162,7 +162,7 @@ exports.deleteWorkExperience = async (req, res) => {
     }
 }
 exports.getAllWorkExperience = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         const result = await pool.query('SELECT * FROM workExperience')
         if (result.rowCount < 1) {
@@ -184,7 +184,7 @@ exports.getAllWorkExperience = async (req, res) => {
     }
 }
 exports.getUserWorkExperience = async (req, res) => {
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
@@ -201,7 +201,7 @@ exports.getUserWorkExperience = async (req, res) => {
         const query = 'SELECT * FROM workExperience WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const workExperience = await db.query(query, [user_id]);
+        const workExperience = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!workExperience.rows[0]) {
@@ -247,7 +247,7 @@ exports.getWorkExperienceById = async (req, res) => {
     }
 }
 exports.addUserExperience = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { experience_id, user_id } = req.body;
@@ -285,7 +285,7 @@ exports.addUserExperience = async (req, res) => {
     }
 }
 exports.removeUserExperience = async (req, res) => {
-    // const db = await pool.connect();
+    // 
     try {
         // DESTRUCTURING DATA FROM BODY
         const { experience_id, user_id } = req.body;

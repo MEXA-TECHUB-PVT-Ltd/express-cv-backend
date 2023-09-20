@@ -153,8 +153,7 @@ exports.deletePersonalInfo = async (req, res) => {
     }
 }
 exports.getAllPersonalInfo = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         const query = `SELECT * FROM personal_info`
         const results = await pool.query(query)
         if (results.rowCount < 1) {
@@ -176,8 +175,7 @@ exports.getAllPersonalInfo = async (req, res) => {
     }
 }
 exports.getUserPersonalInfo = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { user_id } = req.query;
 
@@ -193,7 +191,7 @@ exports.getUserPersonalInfo = async (req, res) => {
         const query = 'SELECT * FROM personal_info WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const personalInfo = await db.query(query, [user_id]);
+        const personalInfo = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!personalInfo.rows[0]) {
@@ -217,8 +215,7 @@ exports.getUserPersonalInfo = async (req, res) => {
     }
 }
 exports.getPersonalInfoById = async (req, res) => {
-    const db = await pool.connect();
-    try {
+        try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { personal_info_id } = req.query;
 
@@ -234,7 +231,7 @@ exports.getPersonalInfoById = async (req, res) => {
         const query = 'SELECT * FROM personal_info WHERE personal_info_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const personalInfo = await db.query(query, [personal_info_id]);
+        const personalInfo = await pool.query(query, [personal_info_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!personalInfo.rows[0]) {

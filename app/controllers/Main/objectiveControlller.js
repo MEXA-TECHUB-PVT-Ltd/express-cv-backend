@@ -121,7 +121,7 @@ exports.updateObjective = async (req, res) => {
 }
 exports.deleteObjective = async (req, res) => {
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // DESTRUCTURE FROM REQUEST BODY
@@ -139,7 +139,7 @@ exports.deleteObjective = async (req, res) => {
         const query = 'DELETE FROM objectives WHERE objective_id = $1';
 
         // DELETING DATA IN DB USING QUERY ABOVE
-        const objectiveUpdated = await db.query(query, [
+        const objectiveUpdated = await pool.query(query, [
             objective_id
         ]);
 
@@ -166,14 +166,14 @@ exports.deleteObjective = async (req, res) => {
 }
 exports.getAllObjective = async (req, res) => {
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // SETTING UP QUERY TO FETCH ALL DATA FROM DB
         const query = 'SELECT * FROM objectives';
 
         // FETCHING ALL DATA FROM DB USING QUERY ABOVE
-        const allObjectives = await db.query(query);
+        const allObjectives = await pool.query(query);
 
         // CHECKING IF THE DATA WAS NOT FOUND SENDING RESPONSE WITH STATUS FALSE
         if (!allObjectives.rows[0]) {
@@ -201,7 +201,7 @@ exports.getAllObjective = async (req, res) => {
 exports.getUserObjective = async (req, res) => {
 
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
 
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -218,7 +218,7 @@ exports.getUserObjective = async (req, res) => {
         const query = 'SELECT * FROM objectives WHERE user_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const allObjectives = await db.query(query, [user_id]);
+        const allObjectives = await pool.query(query, [user_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!allObjectives.rows[0]) {
@@ -244,7 +244,7 @@ exports.getUserObjective = async (req, res) => {
 exports.getObjectiveById = async (req, res) => {
 
     // CONNECTING TO DB
-    const db = await pool.connect();
+    
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
         const { objective_id } = req.query;
@@ -260,7 +260,7 @@ exports.getObjectiveById = async (req, res) => {
         const query = 'SELECT * FROM objectives WHERE objective_id = $1';
 
         // FETCHING DATA FROM DB USING QUERY ABOVE
-        const allObjectives = await db.query(query, [objective_id]);
+        const allObjectives = await pool.query(query, [objective_id]);
 
         // CHECKING IF THE DATA WAS NOT FETCHED SENDING RESPONSE WITH STATUS FALSE
         if (!allObjectives.rows[0]) {
