@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const nodemailer = require("nodemailer");;
 const emailOTPBody = require("../../utils/emailOTPBody")
-
+// NODEMAILER FOR SENDING EMAIL
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -13,6 +13,8 @@ const transporter = nodemailer.createTransport({
     },
 
 });
+
+// ADD USER ACCOUNT
 exports.createUser = async (req, res) => {
     // connect to database
     
@@ -69,6 +71,8 @@ exports.createUser = async (req, res) => {
         });
     }
 }
+
+// LOGIN TO USER ACCOUNT
 exports.signInUser = async (req, res) => {
     // Connecting to db
     
@@ -129,6 +133,8 @@ exports.signInUser = async (req, res) => {
         });
     }
 }
+
+// GET USER ACCOUNT DATA
 exports.getUserData = async (req, res) => {
     const { current_user_id } = req.query;
     try {
@@ -183,6 +189,8 @@ exports.getUserData = async (req, res) => {
         });
     }
 }
+
+// SEND OTP ON EMAIL OF USER ACCOUNT
 exports.forgetPassword = async (req, res) => {
     const { email } = req.body;
     try {
@@ -265,6 +273,8 @@ exports.forgetPassword = async (req, res) => {
         });
     }
 }
+
+// VERIFY OTP TO RESET PASSWORD OF USER ACCOUNT
 exports.otpVerification = async (req, res) => {
     const { otp, otp_id } = req.query;
     try {
@@ -299,6 +309,8 @@ exports.otpVerification = async (req, res) => {
         });
     }
 }
+
+// RESET PASSWORD OF USER ACCOUNT
 exports.resetPassword = async (req, res) => {
     const { otp_id, password } = req.body;
     try {
@@ -348,6 +360,8 @@ exports.resetPassword = async (req, res) => {
         });
     }
 }
+
+// CHANGE PASSWORD OF USER ACCOUNT
 exports.changePassword = async (req, res) => {
     const { current_password, new_password, user_id } = req.body;
     try {
@@ -398,6 +412,8 @@ exports.changePassword = async (req, res) => {
         });
     }
 }
+
+// UPDATE DATA OF USER ACCOUNT
 exports.updateUserInfo = async (req, res) => {
     const { user_name, phone, user_id } = req.query;
     try {
@@ -453,6 +469,8 @@ exports.updateUserInfo = async (req, res) => {
         });
     }
 }
+
+// UPDATE IMAGE OF USER ACCOUNT
 exports.uploadImage = async (req, res) => {
     const path = req.file.path;
     const user_id = req.query.user_id;
@@ -476,6 +494,8 @@ exports.uploadImage = async (req, res) => {
         results: path
     })
 }
+
+// CHANGE BLOCK STATUS OF USER ACCOUNT
 exports.changeBlockStatus = async (req, res) => {
     const status = req.query.block_status
     const user_id = req.query.user_id

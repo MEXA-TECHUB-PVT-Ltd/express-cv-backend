@@ -1,6 +1,6 @@
 const {pool} = require("../../config/db.config");
 
-
+// ADD USER INTEREST
 exports.addInterest = async (req, res) => {
     try {
         const text = req.body.text;
@@ -48,6 +48,7 @@ exports.addInterest = async (req, res) => {
 
 }
 
+// UPDATE USER INTEREST
 exports.updateinterest = async (req, res) => {
     try {
         const interest_id = req.body.interest_id;
@@ -107,6 +108,7 @@ exports.updateinterest = async (req, res) => {
     
 }
 
+// DELETE USER INTEREST
 exports.deleteinterest = async (req, res) => {
     try {
         const interest_id = req.query.interest_id;
@@ -146,6 +148,7 @@ exports.deleteinterest = async (req, res) => {
     
 }
 
+// GET ALL INTERESTS
 exports.getAllinterests = async (req, res) => {
     try {
 
@@ -194,6 +197,7 @@ exports.getAllinterests = async (req, res) => {
 
 }
 
+// GET SPECIFIC INTEREST 
 exports.getinterestById = async (req, res) => {
     try {
         const interest_id = req.query.interest_id;
@@ -234,6 +238,7 @@ exports.getinterestById = async (req, res) => {
 
 }
 
+// GET INTERESTS BY USER ID
 exports.getInterestsByuser_id = async(req,res)=>{
     try {
         const user_id = req.query.user_id;

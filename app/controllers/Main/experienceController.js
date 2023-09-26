@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD USER WORK EXPERIENCE
 exports.addWorkExperience = async (req, res) => {
 
     try {
@@ -48,6 +50,8 @@ exports.addWorkExperience = async (req, res) => {
         });
     }
 }
+
+// UPDATE USER WORK EXPERIENCE
 exports.editWorkExperience = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM BODY
@@ -130,6 +134,8 @@ exports.editWorkExperience = async (req, res) => {
         });
     }
 }
+
+// DELETE USER WORK EXPERIENCE
 exports.deleteWorkExperience = async (req, res) => {
     const { experience_id } = req.query;
     
@@ -161,6 +167,8 @@ exports.deleteWorkExperience = async (req, res) => {
         });
     }
 }
+
+// GET ALL WORK EXPERIENCE
 exports.getAllWorkExperience = async (req, res) => {
     
     try {
@@ -183,6 +191,8 @@ exports.getAllWorkExperience = async (req, res) => {
         });
     }
 }
+
+// GET USER WORK EXPERIENCE
 exports.getUserWorkExperience = async (req, res) => {
     
     try {
@@ -224,6 +234,8 @@ exports.getUserWorkExperience = async (req, res) => {
         });
     }
 }
+
+// GET SPEICIFC WORK EXPERIENCE
 exports.getWorkExperienceById = async (req, res) => {
     const { experience_id } = req.query
     try {
@@ -246,6 +258,8 @@ exports.getWorkExperienceById = async (req, res) => {
         });
     }
 }
+
+// ADD USER WORK EXPERIENCE IN PROFILE
 exports.addUserExperience = async (req, res) => {
     // 
     try {
@@ -284,6 +298,8 @@ exports.addUserExperience = async (req, res) => {
         });
     }
 }
+
+// REMOVE USER WORK EXPERIENCE FROM PROFILE
 exports.removeUserExperience = async (req, res) => {
     // 
     try {
@@ -322,6 +338,8 @@ exports.removeUserExperience = async (req, res) => {
         });
     }
 }
+
+// ADD MULTIPLE USER WORK EXPERIENCE
 exports.addMultipleExperience = async (req, res) => {
     const { experiences, user_id, resume_id } = req.body
     try {

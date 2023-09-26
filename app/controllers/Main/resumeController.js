@@ -1,5 +1,7 @@
 const { query } = require("express");
 const { pool } = require("../../config/db.config");
+
+// ADD USER RESUME
 exports.addResumes = async (req, res) => {
     try {
         const { resume_template_id, user_id, title } = req.body;
@@ -30,6 +32,8 @@ exports.addResumes = async (req, res) => {
         });
     }
 }
+
+// GET ALL RESUME
 exports.getAll = async (req, res) => {
     try {
         const query = `SELECT * FROM resumes`
@@ -164,6 +168,7 @@ exports.getAll = async (req, res) => {
     }
 }
 
+// UPDATE USER RESUMES
 exports.updateResumes = async (req, res) => {
     try {
         const { resume_id, skills, objective, personal_info, languages, work_experience, educations, interests,title } = req.body;
@@ -273,6 +278,8 @@ exports.updateResumes = async (req, res) => {
         });
     }
 }
+
+// GET USER RESUMES
 exports.getUserResumes = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM REQUEST QUERY
@@ -419,6 +426,8 @@ exports.getUserResumes = async (req, res) => {
         });
     }
 }
+
+// GET SPECIFIC RESUME
 exports.getResumesById = async (req, res) => {
     // CONNECTING TO DB
     
@@ -571,6 +580,8 @@ exports.getResumesById = async (req, res) => {
         });
     }
 }
+
+// DELETE RESUME
 exports.deleteResume = async (req, res) => {
     const { resume_id } = req.query;
     try {
@@ -599,6 +610,8 @@ exports.deleteResume = async (req, res) => {
         })
     }
 }
+
+// DELETE EDUCATION FROM RESUME
 exports.removeResumeEducation = async (req, res) => {
     // 
     try {
@@ -637,6 +650,8 @@ exports.removeResumeEducation = async (req, res) => {
         });
     }
 }
+
+// DELETE EXPERIENCE FROM RESUME
 exports.removeResumeExperience = async (req, res) => {
     // 
     try {
@@ -675,6 +690,8 @@ exports.removeResumeExperience = async (req, res) => {
         });
     }
 }
+
+// ADD RESUME DOWNLOAD COUNT
 exports.addDownloaded = async (req, res) => {
     const { user_id, resume_id } = req.query;
     try {
@@ -704,6 +721,8 @@ exports.addDownloaded = async (req, res) => {
         });
     }
 }
+
+// GET RESUME BY SPEICIFC DATE 
 exports.getByDate = async (req, res) => {
     const { date } = req.query;
     try {
@@ -850,6 +869,8 @@ exports.getByDate = async (req, res) => {
         });
     }
 }
+
+// GET RESUME BY WEEK
 exports.getByWeek = async (req, res) => {
     const date = req.query.Fromdate;
     try {
@@ -1000,6 +1021,8 @@ exports.getByWeek = async (req, res) => {
         });
     }
 }
+
+// GET RESUME BY MONTH
 exports.getByMonth = async (req, res) => {
     const userProvidedMonth = req.query.month;
     try {
@@ -1160,6 +1183,8 @@ exports.getByMonth = async (req, res) => {
         });
     }
 }
+
+// GET RESUME BY YEAR
 exports.getByYear = async (req, res) => {
     const userProvidedYear = req.query.year;
     try {

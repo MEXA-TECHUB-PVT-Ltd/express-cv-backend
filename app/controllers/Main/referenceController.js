@@ -1,6 +1,6 @@
 const {pool} = require("../../config/db.config");
 
-
+// ADD REFRENCE
 exports.addreference = async (req, res) => {
     
     try {
@@ -53,6 +53,7 @@ exports.addreference = async (req, res) => {
 
 }
 
+// UPDATE REFRENCE
 exports.updatereference = async (req, res) => {
     
     try {
@@ -129,6 +130,7 @@ exports.updatereference = async (req, res) => {
     
 }
 
+// DELETE REFRENCE
 exports.deletereference = async (req, res) => {
     
     try {
@@ -169,6 +171,7 @@ exports.deletereference = async (req, res) => {
     
 }
 
+// GET ALL REFRENCE
 exports.getAllreferences = async (req, res) => {
     
     try {
@@ -218,6 +221,7 @@ exports.getAllreferences = async (req, res) => {
 
 }
 
+// GET SPECIFIC REFRENCE
 exports.getreferenceById = async (req, res) => {
     
     try {
@@ -259,6 +263,7 @@ exports.getreferenceById = async (req, res) => {
 
 }
 
+// GET USER REFRENCES
 exports.getreferencesByuser_id = async(req,res)=>{
     
     try {

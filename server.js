@@ -4,11 +4,16 @@ const cors = require("cors");
 const app = express();
 require("dotenv").config();
 
+// USING CORS TO MAKE API REQUEST IN SAME IP
 app.use(cors({
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
+
+// USING EXPRESS JSON TO SEND AND RECIEVE JSON DATA
 app.use(express.json());
 
+
+// ALL ROUTES
 app.use("/uploads", express.static("uploads"));
 app.use("/user", require("./app/routes/Users/userRoute"))
 app.use("/admin", require("./app/routes/Users/adminRoute"))
@@ -27,8 +32,11 @@ app.use("/imageUpload", require("./app/routes/ImageUpload/imageUploadRoute"))
 app.use("/about_us", require("./app/routes/Main/about_usRoute"))
 app.use("/faq", require("./app/routes/Main/faqRoute"))
 app.use("/contactUs", require("./app/routes/Main/contactusRoute"))
-
 app.use("/emailVerification", require("./app/routes/EmailVerification/EmailVerificationRoute"))
+
+
+
+// SERVER LISTENING FOR API REQUESTS
 app.listen(process.env.PORT, async () => {
     console.log(`
     ################################################

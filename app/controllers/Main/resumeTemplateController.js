@@ -1,4 +1,6 @@
 const {pool} = require("../../config/db.config");
+
+// ADD RESUME TEMPLATE
 exports.postResume = async (req,res)=>{
     try {
         const {template_name} = req.body;
@@ -33,6 +35,8 @@ exports.postResume = async (req,res)=>{
         });
     }
 }
+
+// GET ALL RESUME TEMPLATE
 exports.getAllResumes = async (req,res)=>{
     // 
     try {
@@ -59,6 +63,8 @@ exports.getAllResumes = async (req,res)=>{
         });
     }
 }
+
+// DELETE RESUME TEMPLATE
 exports.deleteResume = async (req,res)=>{
     const {template_id} = req.query
     try {
