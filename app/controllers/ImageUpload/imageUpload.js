@@ -1,5 +1,7 @@
 const hairStylesUpload = require("../../middlewares/imageUpload")
 const {pool}= require('../../config/db.config')
+
+// UPLOAD IMAGE AND GET FILE LOCATION
 exports.uploadImage = async (req,res)=>{
     try{
         hairStylesUpload(req, res, function (err) {

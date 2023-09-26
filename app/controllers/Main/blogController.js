@@ -1,6 +1,6 @@
 const { pool } = require("../../config/db.config");
 
-
+// ADD BLOG
 exports.addBlog = async (req, res) => {
     try {
         const title = req.body.title;
@@ -51,6 +51,7 @@ exports.addBlog = async (req, res) => {
 
 }
 
+// UPDATE SPECIFIC BLOG
 exports.updateBlog = async (req, res) => {
     try {
         const blog_id = req.body.blog_id;
@@ -127,6 +128,7 @@ exports.updateBlog = async (req, res) => {
 
 }
 
+// DELETE SPECIFIC BLOG
 exports.deleteBlog = async (req, res) => {
     try {
         const blog_id = req.query.blog_id;
@@ -166,6 +168,7 @@ exports.deleteBlog = async (req, res) => {
 
 }
 
+// GET ALL BLOGS
 exports.getAllBlogs = async (req, res) => {
     try {
         let limit = req.query.limit;
@@ -227,6 +230,7 @@ exports.getAllBlogs = async (req, res) => {
 
 }
 
+// GET SPECIFIC BLOG
 exports.getBlogById = async (req, res) => {
     try {
         const blog_id = req.query.blog_id;
@@ -265,6 +269,8 @@ exports.getBlogById = async (req, res) => {
 
 
 }
+
+// ADD BLOG SUB HEADING
 exports.addSubHeadings = async (req, res) => {
     const { subHeadings, blog_id } = req.body;
     try {
@@ -314,6 +320,8 @@ exports.addSubHeadings = async (req, res) => {
         })
     }
 }
+
+// UPDATE BLOG SUB HEADING
 exports.updateSubHeading = async (req, res) => {
     try {
         const sub_headings_id = req.body.sub_headings_id;
@@ -375,6 +383,8 @@ exports.updateSubHeading = async (req, res) => {
     }
 
 }
+
+// DELETE BLOG SUB HEADING
 exports.deleteSubHeading = async (req, res) => {
     try {
         const sub_headings_id = req.query.sub_headings_id;
@@ -413,6 +423,8 @@ exports.deleteSubHeading = async (req, res) => {
     }
 
 }
+
+// GET BLOG SUB HEADING
 exports.getBlogSubHeadings = async (req, res) => {
     const blog_id = req.query.blog_id;
     try {
@@ -442,7 +454,7 @@ exports.getBlogSubHeadings = async (req, res) => {
         }
         console.log(result.rowCount)
         if (result.rowCount < 1) {
-            res.json({
+            return res.json({
                 message: "Blog not found",
                 status: false
             })
@@ -479,6 +491,8 @@ exports.getBlogSubHeadings = async (req, res) => {
 
 
 }
+
+// GET BLOGS BY SPECIFIC DATE
 exports.getByDate = async (req, res) => {
     const { date } = req.query;
     try {
@@ -520,6 +534,8 @@ exports.getByDate = async (req, res) => {
         });
     }
 }
+
+// GET BLOGS BY SPECIFIC WEEK
 exports.getByWeek = async (req, res) => {
     const date = req.query.Fromdate;
     try {
@@ -565,6 +581,8 @@ exports.getByWeek = async (req, res) => {
         });
     }
 }
+
+// GET BLOGS BY SPECIFIC MONTH
 exports.getByMonth = async (req, res) => {
     const userProvidedMonth = req.query.month;
     try {
@@ -620,6 +638,8 @@ exports.getByMonth = async (req, res) => {
         });
     }
 }
+
+// GET BLOGS BY SPECIFIC YEAR
 exports.getByYear = async (req, res) => {
     const userProvidedYear = req.query.year;
     try {

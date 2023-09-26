@@ -1,4 +1,5 @@
 const { pool } = require("../../config/db.config");
+// ADD USER PERSONAL INFO
 exports.addPersonalInfo = async (req, res) => {
 
     try {
@@ -45,6 +46,7 @@ exports.addPersonalInfo = async (req, res) => {
         });
     }
 }
+// UPDATE USER PERSONAL INFO
 exports.editPersonalInfo = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM BODY
@@ -123,6 +125,7 @@ exports.editPersonalInfo = async (req, res) => {
         });
     }
 }
+// DELETE USER PERSONAL INFO
 exports.deletePersonalInfo = async (req, res) => {
     const { personal_info_id } = req.query;
     try {
@@ -152,6 +155,7 @@ exports.deletePersonalInfo = async (req, res) => {
         });
     }
 }
+// GET ALL PERSONAL INFO
 exports.getAllPersonalInfo = async (req, res) => {
         try {
         const query = `SELECT * FROM personal_info`
@@ -174,6 +178,7 @@ exports.getAllPersonalInfo = async (req, res) => {
         });
     }
 }
+// GET USER PERSONAL INFO
 exports.getUserPersonalInfo = async (req, res) => {
         try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -214,6 +219,7 @@ exports.getUserPersonalInfo = async (req, res) => {
         });
     }
 }
+// GET SPECIFIC PERSONAL INFO 
 exports.getPersonalInfoById = async (req, res) => {
         try {
         // DESTRUCTURE DATA FROM REQUEST QUERY

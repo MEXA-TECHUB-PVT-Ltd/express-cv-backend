@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD USER OBJECTIVE
 exports.addObjective = async (req, res) => {
     // CONNECTING TO DB
 
@@ -72,6 +74,8 @@ exports.addObjective = async (req, res) => {
         });
     }
 }
+
+// UPDATE USER OBJECTIVE
 exports.updateObjective = async (req, res) => {
     // CONNECTING TO DB
 
@@ -119,6 +123,8 @@ exports.updateObjective = async (req, res) => {
         });
     }
 }
+
+// DELETE USER OBJECTIVE
 exports.deleteObjective = async (req, res) => {
     // CONNECTING TO DB
     
@@ -164,6 +170,8 @@ exports.deleteObjective = async (req, res) => {
         });
     }
 }
+
+// GET ALL OBJECTIVES
 exports.getAllObjective = async (req, res) => {
     // CONNECTING TO DB
     
@@ -198,6 +206,8 @@ exports.getAllObjective = async (req, res) => {
         });
     }
 }
+
+// GET USER OBJECTIVE
 exports.getUserObjective = async (req, res) => {
 
     // CONNECTING TO DB
@@ -241,6 +251,8 @@ exports.getUserObjective = async (req, res) => {
         });
     }
 }
+
+// GET SPECIFIC OBJECTIVE
 exports.getObjectiveById = async (req, res) => {
 
     // CONNECTING TO DB

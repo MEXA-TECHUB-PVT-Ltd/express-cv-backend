@@ -3,9 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const {pool} = require("../../config/db.config");
 
-
-
-
+// ADD ADMIN ACCOUNT
 exports.registerAdmin =async (req,res,next)=>{
     
 
@@ -71,7 +69,7 @@ exports.registerAdmin =async (req,res,next)=>{
     
 }
 
-
+// LOGIN TO ADMIN ACCOUNT
 exports.login = async (req,res)=>{
     try{
         const email = req.body.email;
@@ -127,6 +125,7 @@ exports.login = async (req,res)=>{
     }
 }
 
+// GET DETAILS OF ADMIN ACCOUNT
 exports.viewAdminProfile = async(req,res)=>{
     try{
         const admin_id = req.query.admin_id;
@@ -167,6 +166,7 @@ exports.viewAdminProfile = async(req,res)=>{
     }
 }
 
+// UPDATE ADMIN ACCOUNT
 exports.updateProfile = async (req, res) => {
     
     try {
@@ -229,6 +229,7 @@ exports.updateProfile = async (req, res) => {
     
 }
 
+// GET ALL ADMIN ACCOUNTS
 exports.getAllAdmins = async(req,res)=>{
     
     try{
@@ -260,6 +261,7 @@ exports.getAllAdmins = async(req,res)=>{
     
 }
 
+// UPDATE PASSWORD OF ADMIN ACCOUNT
 exports.passwordUpdate = async(req,res)=>{
     
     try{
@@ -313,6 +315,8 @@ exports.passwordUpdate = async(req,res)=>{
     }
     
 }
+
+// EMAIL AND PASSWORD VALIDATION
 const registerSchema = Joi.object({
     email: Joi.string().min(6).required().email(),
     password: Joi.string().min(6).required(),

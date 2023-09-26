@@ -2,7 +2,7 @@ const { pool } = require("../../config/db.config");
 const nodemailer = require("nodemailer");;
 const emailOTPBody = require("../../utils/emailOTPBody")
 
-
+// NODE MAILER TO SEND EMAILS
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -12,8 +12,7 @@ const transporter = nodemailer.createTransport({
 
 });
 
-
-
+// SEND OTP ON EMAIL
 exports.sendEmail = async (req, res) => {
     try {
         const email = req.body.email;
@@ -52,6 +51,7 @@ exports.sendEmail = async (req, res) => {
 
 }
 
+// VERIFY OTP SENT ON EMAIL
 exports.verifyOTP = async (req,res)=>{
     try{
         const email = req.body.email;
@@ -82,7 +82,7 @@ exports.verifyOTP = async (req,res)=>{
       }
 }
 
-
+// FUNCTION TO SEND EMAIL
 const sendOTPVerificationEmail = async (email, res) => {
     try {
         let result;

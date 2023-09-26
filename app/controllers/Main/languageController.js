@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD USER LANGUAGE
 exports.addLanguage = async (req, res) => {
     try {
         // DESTRUCTURE FROM REQUEST BODY
@@ -42,6 +44,8 @@ exports.addLanguage = async (req, res) => {
         });
     }
 }
+
+// UPDATE USER LANGUAGE
 exports.updateLanguage = async (req, res) => {
     try {
         // DESTRUCTURING DATA FROM BODY
@@ -109,6 +113,8 @@ exports.updateLanguage = async (req, res) => {
         });
     }
 }
+
+// DELETE USER LANGUAGE
 exports.deleteLanguage = async (req, res) => {
     
     try {
@@ -151,6 +157,8 @@ exports.deleteLanguage = async (req, res) => {
         });
     }
 }
+
+// GET ALL LANGUAGES
 exports.getAllLanguage = async (req, res) => {
     
     try {
@@ -181,6 +189,8 @@ exports.getAllLanguage = async (req, res) => {
         });
     }
 }
+
+// GET USER LANGUAGES
 exports.getUserLanguage = async (req, res) => {
     
     try {
@@ -222,6 +232,8 @@ exports.getUserLanguage = async (req, res) => {
         });
     }
 }
+
+// GET LANGUAGE BY ID
 exports.getLanguageById = async (req, res) => {
     
     try {
@@ -262,6 +274,8 @@ exports.getLanguageById = async (req, res) => {
         });
     }
 }
+
+// ADD MULTIPLE USER LANGUAGE
 exports.addMultipleLanguage = async (req, res) => {
     const { languages, user_id, resume_id } = req.body
     try {

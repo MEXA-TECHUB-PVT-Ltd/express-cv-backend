@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD USER EDUCATION
 exports.addEducation = async (req, res) => {
     // 
     try {
@@ -51,6 +53,7 @@ exports.addEducation = async (req, res) => {
         });
     }
 }
+// UPDATE USER EDUCATION
 exports.updateEducation = async (req, res) => {
     // 
     try {
@@ -131,6 +134,7 @@ exports.updateEducation = async (req, res) => {
         });
     }
 }
+// DELETE USER EDUCATION
 exports.deleteEducation = async (req, res) => {
     
     try {
@@ -173,6 +177,7 @@ exports.deleteEducation = async (req, res) => {
         });
     }
 }
+// GET ALL EDUCATION
 exports.getAllEducation = async (req, res) => {
     
     try {
@@ -184,6 +189,7 @@ exports.getAllEducation = async (req, res) => {
         });
     }
 }
+// GET USER EDUCATION
 exports.getUserEducation = async (req, res) => {
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -224,6 +230,7 @@ exports.getUserEducation = async (req, res) => {
         });
     }
 }
+// ADD USER EDUCATION IN PROFILE
 exports.addUserEducation = async (req, res) => {
     // 
     try {
@@ -262,6 +269,7 @@ exports.addUserEducation = async (req, res) => {
         });
     }
 }
+// REMOVE USER EDUCATION FROM PROFILE
 exports.removeUserEducation = async (req, res) => {
     // 
     try {
@@ -301,7 +309,8 @@ exports.removeUserEducation = async (req, res) => {
     }
 }
 
-exports.getEducationById = async (req,res)=>{
+// GET SPECIFIC USER EDUCATION
+exports.getEducationById = async (req, res) => {
     const { education_id } = req.query;
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -342,6 +351,7 @@ exports.getEducationById = async (req,res)=>{
         });
     }
 }
+// ADD MULTIPLE USER EDUCATION
 exports.addMultipleEducation = async (req, res) => {
     const { educations, user_id, resume_id } = req.body
     try {

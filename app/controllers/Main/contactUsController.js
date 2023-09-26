@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD CONTACT US DETAILS
 exports.add = async (req, res) => {
     try {
         const name = req.body.name;
@@ -48,6 +50,7 @@ exports.add = async (req, res) => {
 
 }
 
+// UPDATE CONTACT US DETAILS
 exports.update = async (req, res) => {
     try {
         const contact_us_id = req.body.contact_us_id;
@@ -116,6 +119,7 @@ exports.update = async (req, res) => {
 
 }
 
+// DELETE CONTACT US DETAILS
 exports.delete = async (req, res) => {
     try {
         const contact_us_id = req.query.contact_us_id;
@@ -155,6 +159,7 @@ exports.delete = async (req, res) => {
 
 }
 
+// GET ALL CONTACT US DETAILS
 exports.get = async (req, res) => {
     try {
         let limit = req.query.limit;
@@ -201,6 +206,8 @@ exports.get = async (req, res) => {
 
 
 }
+
+// GET SPECIFIC CONTACT US DETAILS
 exports.getById = async (req, res) => {
     try {
         let contact_us_id = req.query.contact_us_id;
@@ -244,6 +251,8 @@ exports.getById = async (req, res) => {
 
 
 }
+
+// UPDATE ACTIVE STATUS OF CONTACT US DETAILS
 exports.updateStatus = async (req, res) => {
     try {
         const contact_us_id = req.body.contact_us_id;

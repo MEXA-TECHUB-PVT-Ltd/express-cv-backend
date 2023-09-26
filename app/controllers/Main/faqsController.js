@@ -1,6 +1,6 @@
 const {pool} = require('../../config/db.config');
 
-
+// ADD FAQ
 exports.addFaq = async(req,res)=>{
     try{
         const question = req.body.question ;
@@ -34,7 +34,7 @@ exports.addFaq = async(req,res)=>{
     
 }
 
-
+// GET ALL FAQS
 exports.getAllFaqs = async(req,res)=>{
 
     try{
@@ -67,6 +67,7 @@ exports.getAllFaqs = async(req,res)=>{
     
 }
 
+// GET SPECIFIC FAQ
 exports.viewFaq = async(req,res)=>{
     try{
         const faq_id = req.query.faq_id;
@@ -99,7 +100,7 @@ exports.viewFaq = async(req,res)=>{
     
 }
 
-
+// UPDATE FAQ
 exports.updateFaq= async(req,res)=>{
 
     
@@ -158,7 +159,7 @@ exports.updateFaq= async(req,res)=>{
     
 }
 
-
+// DELETE FAQ
 exports.DeleteFaq= async(req,res)=>{
 
     

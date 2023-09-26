@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
+
+// VERIFY JWT TOKEN
 module.exports = (req, res, next) => {
   try {
     if(!req.headers.token){

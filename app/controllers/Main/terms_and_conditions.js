@@ -2,6 +2,7 @@
 
 const {pool} = require('../../config/db.config');
 
+// ADD TERMS AND CONDITIONS
 exports.addTermsAndConditions = async(req,res)=>{
     
     try{
@@ -34,7 +35,7 @@ exports.addTermsAndConditions = async(req,res)=>{
     
 }
 
-
+// GET ALL TERMS AND CONDITIONS
 exports.getAllTermsAndConditions = async(req,res)=>{
     
     try{
@@ -67,6 +68,7 @@ exports.getAllTermsAndConditions = async(req,res)=>{
     
 }
 
+// GET SPECIFIC TERMS AND CONDITIONS
 exports.viewTermsAndCondition = async(req,res)=>{
     
 
@@ -101,6 +103,7 @@ exports.viewTermsAndCondition = async(req,res)=>{
     
 }
 
+// GET ACTIVE TERMS AND CONDITIONS
 exports.viewActiveTermsAndCondition = async(req,res)=>{
     
 
@@ -133,6 +136,7 @@ exports.viewActiveTermsAndCondition = async(req,res)=>{
     
 }
 
+// UPDATE TERMS AND CONDITIONS
 exports.updateTermsAndCondition= async(req,res)=>{
     
     try{
@@ -168,6 +172,7 @@ exports.updateTermsAndCondition= async(req,res)=>{
     
 }
 
+// UPDATE ACTIVE STATUS OF TERMS AND CONDITIONS
 exports.updateStatus= async(req,res)=>{
     
     try{

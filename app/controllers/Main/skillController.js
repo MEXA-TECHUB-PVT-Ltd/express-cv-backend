@@ -1,4 +1,6 @@
 const { pool } = require("../../config/db.config");
+
+// ADD USER SKILL
 exports.addSkill = async (req, res) => {
     try {
         // DESTRUCTURE FROM REQUEST BODY
@@ -44,6 +46,8 @@ exports.addSkill = async (req, res) => {
         });
     }
 }
+
+// UPDATE USER SKILL
 exports.editSkill = async (req, res) => {
     const { skill, level, skill_id } = req.body
     try {
@@ -72,6 +76,8 @@ exports.editSkill = async (req, res) => {
         });
     }
 }
+
+// DELETE USER SKILL
 exports.deleteSkill = async (req, res) => {
     const { skill_id } = req.query
     try {
@@ -100,6 +106,8 @@ exports.deleteSkill = async (req, res) => {
         });
     }
 }
+
+// GET ALL SKILLS
 exports.getAllSkill = async (req, res) => {
     try {
         const query = `SELECT * FROM skills`;
@@ -122,6 +130,8 @@ exports.getAllSkill = async (req, res) => {
         });
     }
 }
+
+// GET USER SKILLS
 exports.getUserSkill = async (req, res) => {
     try {
         // DESTRUCTURE DATA FROM REQUEST QUERY
@@ -162,6 +172,8 @@ exports.getUserSkill = async (req, res) => {
         });
     }
 }
+
+// GET SPECIFIC SKILL
 exports.getSkillById = async (req, res) => {
     const { skill_id } = req.query
     try {
@@ -190,6 +202,8 @@ exports.getSkillById = async (req, res) => {
         });
     }
 }
+
+// ADD MULTIPLE USER SKILLS
 exports.addMultipleSkill = async (req, res) => {
     const { skills, user_id, resume_id } = req.body
     try {

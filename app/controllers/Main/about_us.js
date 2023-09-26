@@ -1,6 +1,6 @@
 const {pool} = require('../../config/db.config');
 
-
+// ADD ABOUT US
 exports.add_aboutus = async(req,res)=>{
     try{
         const text = req.body.text ;
@@ -31,7 +31,7 @@ exports.add_aboutus = async(req,res)=>{
     
 }
 
-    
+// GET ALL ABOUT US
 exports.getAlladd_aboutus= async(req,res)=>{
 
     try{
@@ -64,6 +64,7 @@ exports.getAlladd_aboutus= async(req,res)=>{
     
 }
 
+// GET SPECIFIC ABOUT US
 exports.viewAboutUs = async(req,res)=>{
     try{
         const about_us_id = req.query.about_us_id;
@@ -96,6 +97,7 @@ exports.viewAboutUs = async(req,res)=>{
     
 }
 
+// GET ACTIVE ABOUT US
 exports.viewActiveAboutUs = async(req,res)=>{
     try{
         const query = 'SELECT * FROM about_us WHERE status = $1';
@@ -127,6 +129,7 @@ exports.viewActiveAboutUs = async(req,res)=>{
     
 }
 
+// UPDATE SPECIFIC ABOUT US
 exports.updateAboutUs= async(req,res)=>{
     try{
         const about_us_id = req.body.about_us_id;
@@ -161,6 +164,7 @@ exports.updateAboutUs= async(req,res)=>{
     
 }
 
+// CHANGE ACTIVE STATUS OF ABOUT US
 exports.updateStatus= async(req,res)=>{
     try{
         const about_us_id = req.body.about_us_id;
