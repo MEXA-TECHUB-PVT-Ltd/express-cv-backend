@@ -308,6 +308,7 @@ exports.removeUserEducation = async (req, res) => {
         });
     }
 }
+
 // GET SPECIFIC USER EDUCATION
 exports.getEducationById = async (req, res) => {
     const { education_id } = req.query;

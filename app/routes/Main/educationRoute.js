@@ -11,4 +11,5 @@ educationRouter.put("/add-user-education", controller.addUserEducation);
 educationRouter.get("/get-education-by-id",controller.getEducationById);
 educationRouter.put("/remove-user-education", controller.removeUserEducation);
 educationRouter.put("/addMultipleEducation", controller.addMultipleEducation);
+
 module.exports = educationRouter;
